@@ -1,0 +1,1 @@
+This project is going to be an app that captures the user's hand gestures and maps them to specific actions on the computer. The user can perform different gestures to change volume, brightness, skip songs, pause, etc.
