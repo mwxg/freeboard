@@ -1,0 +1,68 @@
+
+# ===================================
+# Python
+# ===================================
+__pycache__/
+*.py[cod]
+*.pyd
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+
+# ===================================
+# Virtual environments
+# ===================================
+.venv/
+venv/
+env/
+
+# ===================================
+# Environment variables / secrets
+# ===================================
+.env
+.env.*
+!.env.example
+
+# ===================================
+# IDE / editor settings
+# ===================================
+.vscode/
+.idea/
+
+# ===================================
+# Operating system files
+# ===================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===================================
+# Computer vision / ML project
+# ===================================
+# Locally collected training data
+data/raw/
+data/processed/
+
+# Large trained model files
+*.pt
+*.pth
+*.onnx
+*.h5
+*.tflite
+*.task
+
+# Video recordings and captures
+recordings/
+captures/
+
+# ===================================
+# Temporary files and logs
+# ===================================
+*.log
+tmp/
+temp/
