@@ -1,4 +1,5 @@
 import cv2
+from gestures import Gesture
 
 
 # check what google wrote for hand_landmarker
@@ -34,5 +35,17 @@ def draw_detection_status(frame) -> None:
         cv2.FONT_HERSHEY_SIMPLEX,
         1,
         (0, 255, 0),
+        2
+    )
+
+
+def draw_gesture_status(frame, gesture: Gesture) -> None:
+    cv2.putText(
+        frame,
+        f"Gesture: {gesture.value}",
+        (20, 80),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        1,
+        (255, 255, 0),
         2
     )

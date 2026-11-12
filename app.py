@@ -2,7 +2,8 @@ import cv2
 
 from config import CAMERA_INDEX, MODEL_PATH, WINDOW_NAME
 from detector import create_hand_landmarker, detect_hands
-from drawing import draw_detection_status, draw_hand
+from drawing import draw_detection_status, draw_gesture_status, draw_hand
+from gestures import classify_gesture
 
 
 def main() -> None:
@@ -35,10 +36,12 @@ def main() -> None:
                 # skipped if no hand is detected
                 if result.hand_landmarks:
 
-                    # num_hands is 1, but if it's 2 it'll just automatically
-                    # draw both hands
+                    # num_hands is 1, but if it's 2 it'll just automatically draw both hands
                     for hand_landmarks in result.hand_landmarks:
                         draw_hand(frame, hand_landmarks)
+
+                        gesture = classify_gesture(hand_landmarks)
+                        draw_gesture_status(frame, gesture)
 
                     # label to indicate a hand was detected
                     draw_detection_status(frame)
