@@ -91,9 +91,6 @@ class MainWindow(QMainWindow):
             self.video_label.setText("Could not read a frame")
             return
 
-        # mirror the image so movement feels natural
-        frame = cv2.flip(frame, 1)
-
         result = detect_hands(self.landmarker, frame)
 
         if result.hand_landmarks:
@@ -108,7 +105,10 @@ class MainWindow(QMainWindow):
 
                 if hand_name == "left":
                     self.left_hand_label.setText(f"Left hand: {gesture.value}")
-                    if gesture is Gesture.INDEX_POINT:
+                    if (
+                        gesture is Gesture.INDEX_POINT
+                        and handedness[0].score >= 0.8
+                    ):
                         self.action_tracking = True
                 elif hand_name == "right":
                     self.right_hand_label.setText(f"Right hand: {gesture.value}")
@@ -118,6 +118,8 @@ class MainWindow(QMainWindow):
         if self.action_tracking:
             self.action_tracking_label.setText("Action tracking: active")
 
+        # mirror the image so movement feels natural
+        frame = cv2.flip(frame, 1)
         self.display_frame(frame)
 
     def display_frame(self, frame) -> None:
