@@ -80,8 +80,8 @@ class MainWindow(QMainWindow):
 
         # frames start with neutral labels
         self.detection_label.setText("No hand detected")
-        self.left_hand_label.setText("Left hand: --")
-        self.right_hand_label.setText("Right hand: --")
+        self.left_hand_label.setText("Left hand (0.00): --")
+        self.right_hand_label.setText("Right hand (0.00): --")
         self.action_tracking = False
         self.action_tracking_label.setText("Action tracking: inactive")
 
@@ -101,17 +101,19 @@ class MainWindow(QMainWindow):
                 gesture = classify_gesture(hand_landmarks)
                 hand_name = handedness[0].category_name.lower()
 
+                handedness_score = round(handedness[0].score, 2)
+
                 self.detection_label.setText("Hand detected")
 
                 if hand_name == "left":
-                    self.left_hand_label.setText(f"Left hand: {gesture.value}")
+                    self.left_hand_label.setText(f"Left hand ({handedness_score:.2f}): {gesture.value}")
                     if (
                         gesture is Gesture.INDEX_POINT
-                        and handedness[0].score >= 0.8
+                        and handedness_score >= 0.8
                     ):
                         self.action_tracking = True
                 elif hand_name == "right":
-                    self.right_hand_label.setText(f"Right hand: {gesture.value}")
+                    self.right_hand_label.setText(f"Right hand ({handedness_score:.2f}): {gesture.value}")
 
                 draw_hand(frame, hand_landmarks)
 
