@@ -36,12 +36,25 @@ def main() -> None:
                 # skipped if no hand is detected
                 if result.hand_landmarks:
 
-                    # num_hands is 1, but if it's 2 it'll just automatically draw both hands
-                    for hand_landmarks in result.hand_landmarks:
-                        draw_hand(frame, hand_landmarks)
+                    hands_left_to_right = sorted(
+                        result.hand_landmarks,
+                        key=lambda hand: hand[0].x # sort by wrist's x coordinate
+                    )
+
+                    # draw one or both hands
+                    for index, hand_landmarks in enumerate(hands_left_to_right):
+                        if len(hands_left_to_right) == 1:
+                            position = "only"
+
+                        elif index == 0:
+                            position = "left"
+                        else:
+                            position = "right"
 
                         gesture = classify_gesture(hand_landmarks)
-                        draw_gesture_status(frame, gesture)
+
+                        draw_hand(frame, hand_landmarks)
+                        draw_gesture_status(frame, position, gesture)
 
                     # label to indicate a hand was detected
                     draw_detection_status(frame)

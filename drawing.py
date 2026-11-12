@@ -39,11 +39,22 @@ def draw_detection_status(frame) -> None:
     )
 
 
-def draw_gesture_status(frame, gesture: Gesture) -> None:
+def draw_gesture_status(frame, position, gesture: Gesture) -> None:
+
+    y_pos = 80
+    
+    if position == "only":
+        text = f"One hand: {gesture.value}"
+    elif position == "left":
+        text = f"Left hand: {gesture.value}"
+    else:
+        text = f"Right hand: {gesture.value}"
+        y_pos = 120
+
     cv2.putText(
         frame,
-        f"Gesture: {gesture.value}",
-        (20, 80),
+        text,
+        (20, y_pos),
         cv2.FONT_HERSHEY_SIMPLEX,
         1,
         (255, 255, 0),

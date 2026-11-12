@@ -4,7 +4,7 @@ MODEL_PATH = Path("models/hand_landmarker.task")
 CAMERA_INDEX = 0 # users may have more than one camera
 WINDOW_NAME = "Freeboard Camera"
 
-NUM_HANDS = 1 # change to 2 if 2 handed gestures needed
+NUM_HANDS = 2
 MIN_HAND_DETECTION_CONFIDENCE = 0.5
 MIN_HAND_PRESENCE_CONFIDENCE = 0.5 # basically asks if the hand is still there in the tracked region
 MIN_TRACKING_CONFIDENCE = 0.5 # did it successfully track the hand from prev frame?
