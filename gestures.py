@@ -2,6 +2,7 @@ from enum import Enum
 from math import acos, degrees, hypot
 from typing import Protocol
 from collections.abc import Sequence
+from config import FINGER_STRAIGHT_ANGLE, PINCH_DISTANCE_RATIO
 
 
 # practicing using Protocols
@@ -23,7 +24,7 @@ class Gesture(Enum):
 # TIP: fingertip
 WRIST = 0
 
-THUMB_CMC = 1 # right above the wrist
+THUMB_CMC = 1 # right at the wrist
 THUMB_MCP = 2
 THUMB_IP = 3 # the knuckle right under your thumbnail; thumb is a little different
 THUMB_TIP = 4
@@ -76,4 +77,49 @@ def joint_angle(a: Landmark, joint: Landmark, c: Landmark) -> float:
     cosine = max(-1.0, min(1.0, cosine))
 
     return degrees(acos(cosine))
-    
+
+
+def finger_is_extended(
+    landmarks: Sequence[Landmark],
+    mcp: int,
+    pip: int,
+    dip: int,
+    tip: int
+) -> bool:
+    pip_angle = joint_angle(
+        landmarks[mcp],
+        landmarks[pip],
+        landmarks[dip]
+    )
+
+    dip_angle = joint_angle(
+        landmarks[pip],
+        landmarks[dip],
+        landmarks[tip]
+    )
+
+    return pip_angle > FINGER_STRAIGHT_ANGLE and dip_angle > FINGER_STRAIGHT_ANGLE
+
+def classify_gesture(landmarks: Sequence[Landmark]) -> Gesture:
+
+    # check each finger if it's extended (except thumb)
+    fingers = (
+        finger_is_extended(landmarks, INDEX_MCP, INDEX_PIP, INDEX_DIP, INDEX_TIP),
+        finger_is_extended(landmarks, MIDDLE_MCP, MIDDLE_PIP, MIDDLE_DIP, MIDDLE_TIP),
+        finger_is_extended(landmarks, RING_MCP, RING_PIP, RING_DIP, RING_TIP),
+        finger_is_extended(landmarks, PINKY_MCP, PINKY_PIP, PINKY_DIP, PINKY_TIP)
+    )
+
+    # normalize against hand size because moving away from camera can change it
+    hand_size = distance(landmarks[WRIST], landmarks[MIDDLE_MCP])
+    pinch_distance = distance(
+        landmarks[THUMB_TIP],
+        landmarks[INDEX_TIP],
+    )
+
+    if hand_size > 0 and pinch_distance / hand_size < PINCH_DISTANCE_RATIO:
+        return Gesture.PINCH
+    if all(fingers):
+        return Gesture.OPEN_PALM
+    if not any(fingers):
+        return Gesture.FIST
