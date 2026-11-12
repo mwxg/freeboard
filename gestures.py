@@ -137,8 +137,6 @@ def classify_gesture(landmarks: Sequence[Landmark]) -> Gesture:
         return Gesture.INDEX_POINT
     if fingers[0] and fingers[1] and not any(fingers[2:]):
         return Gesture.PEACE
-    if not any(fingers):
-        return Gesture.FIST
 
     # no gesture detected
     return Gesture.UNKNOWN
