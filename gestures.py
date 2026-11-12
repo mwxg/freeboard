@@ -15,6 +15,8 @@ class Gesture(Enum):
     OPEN_PALM = "open_palm"
     FIST = "fist"
     PINCH = "pinch"
+    INDEX_POINT = "index_point"
+    PEACE = "peace"
     UNKNOWN = "unknown"
 
 
@@ -121,6 +123,10 @@ def classify_gesture(landmarks: Sequence[Landmark]) -> Gesture:
         return Gesture.PINCH
     if all(fingers):
         return Gesture.OPEN_PALM
+    if fingers[0] and not any(fingers[1:]):
+        return Gesture.INDEX_POINT
+    if fingers[:1] and not any(fingers[2:]):
+        return Gesture.PEACE
     if not any(fingers):
         return Gesture.FIST
 
