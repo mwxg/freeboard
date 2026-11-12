@@ -22,6 +22,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(WINDOW_NAME)
         self.resize(960, 720)
 
+        # displays each webcam frame
         self.video_label = QLabel()
         self.video_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.video_label.setMinimumSize(640, 480)
@@ -49,12 +50,15 @@ class MainWindow(QMainWindow):
             self.video_label.setText("Could not read a frame")
             return
 
-        # Mirror the image so movement feels natural.
+        # mirror the image so movement feels natural
         frame = cv2.flip(frame, 1)
 
         result = detect_hands(self.landmarker, frame)
 
         if result.hand_landmarks:
+
+            # sort hands by the wrist's position
+            # yes, the user could potentially cross hands...
             hands_left_to_right = sorted(
                 result.hand_landmarks,
                 key=lambda hand: hand[0].x,
@@ -78,7 +82,7 @@ class MainWindow(QMainWindow):
         self.display_frame(frame)
 
     def display_frame(self, frame) -> None:
-        # OpenCV uses BGR; Qt expects RGB here.
+        # OpenCV uses BGR but Qt expects RGB
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
         height, width, _ = rgb_frame.shape
@@ -92,10 +96,14 @@ class MainWindow(QMainWindow):
             QImage.Format.Format_RGB888,
         ).copy()
 
+        # pixmap is optimized for displaying images on screen
         pixmap = QPixmap.fromImage(image)
         scaled_pixmap = pixmap.scaled(
             self.video_label.size(),
             Qt.AspectRatioMode.KeepAspectRatio,
+
+            # can use FastTransformation or SmoothTransformation
+            # smooth looks better but takes slightly longer to process
             Qt.TransformationMode.SmoothTransformation,
         )
 
