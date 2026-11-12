@@ -69,7 +69,7 @@ def joint_angle(a: Landmark, joint: Landmark, c: Landmark) -> float:
     # angles spread out from joint
     # e.g. MCP <- PIP -> DIP
     cosine = (
-        first[0] * second[0] + first[1] + second[1]
+        first[0] * second[0] + first[1] * second[1]
     ) / (first_length * second_length)
 
     # arccos needs to be in [-1, 1]
