@@ -100,7 +100,17 @@ def finger_is_extended(
         landmarks[tip]
     )
 
-    return pip_angle > FINGER_STRAIGHT_ANGLE and dip_angle > FINGER_STRAIGHT_ANGLE
+    conditions = (
+        pip_angle > FINGER_STRAIGHT_ANGLE,
+        dip_angle > FINGER_STRAIGHT_ANGLE,
+
+        # finger must be oriented upwards
+        landmarks[pip].y < landmarks[mcp].y,
+        landmarks[dip].y < landmarks[mcp].y,
+        landmarks[tip].y < landmarks[mcp].y
+    )
+
+    return all(conditions)
 
 def classify_gesture(landmarks: Sequence[Landmark]) -> Gesture:
 
@@ -111,6 +121,8 @@ def classify_gesture(landmarks: Sequence[Landmark]) -> Gesture:
         finger_is_extended(landmarks, RING_MCP, RING_PIP, RING_DIP, RING_TIP),
         finger_is_extended(landmarks, PINKY_MCP, PINKY_PIP, PINKY_DIP, PINKY_TIP)
     )
+
+    print(fingers)
 
     # normalize against hand size because moving away from camera can change it
     hand_size = distance(landmarks[WRIST], landmarks[MIDDLE_MCP])
@@ -125,7 +137,7 @@ def classify_gesture(landmarks: Sequence[Landmark]) -> Gesture:
         return Gesture.OPEN_PALM
     if fingers[0] and not any(fingers[1:]):
         return Gesture.INDEX_POINT
-    if fingers[:1] and not any(fingers[2:]):
+    if fingers[0] and fingers[1] and not any(fingers[2:]):
         return Gesture.PEACE
     if not any(fingers):
         return Gesture.FIST
