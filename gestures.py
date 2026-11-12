@@ -123,3 +123,6 @@ def classify_gesture(landmarks: Sequence[Landmark]) -> Gesture:
         return Gesture.OPEN_PALM
     if not any(fingers):
         return Gesture.FIST
+
+    # no gesture detected
+    return Gesture.UNKNOWN
