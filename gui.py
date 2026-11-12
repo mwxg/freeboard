@@ -112,6 +112,7 @@ class MainWindow(QMainWindow):
 
                 if position == "only":
                     self.left_hand_label.setText(f"One hand: {gesture.value}")
+                    self.right_hand_label.setText(f"--")
                 elif position == "left":
                     self.left_hand_label.setText(f"Left hand: {gesture.value}")
                 else:
