@@ -2,11 +2,17 @@ import cv2
 
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QCloseEvent, QImage, QPixmap
-from PySide6.QtWidgets import QLabel, QMainWindow
+from PySide6.QtWidgets import (
+    QLabel, QMainWindow,
+    QHBoxLayout,
+    QVBoxLayout,
+    QWidget,
+    QFrame,
+)
 
 from config import CAMERA_INDEX, MODEL_PATH, WINDOW_NAME
 from detector import create_hand_landmarker, detect_hands
-from drawing import draw_detection_status, draw_gesture_status, draw_hand
+from drawing import draw_hand
 from gestures import classify_gesture
 
 
@@ -30,7 +36,29 @@ class MainWindow(QMainWindow):
             "background-color: #18181b;"
         )
 
-        self.setCentralWidget(self.video_label)
+        central_widget = QWidget()
+        main_layout = QHBoxLayout(central_widget)
+
+        main_layout.addWidget(self.video_label, stretch=1)
+
+        sidebar = QFrame()
+        sidebar.setMinimumWidth(220)
+
+        sidebar_layout = QVBoxLayout(sidebar)
+
+        title_label = QLabel("Gesture Status")
+        self.detection_label = QLabel("No hand detected")
+        self.left_hand_label = QLabel("Left hand: --")
+        self.right_hand_label = QLabel("Right hand: --")
+
+        sidebar_layout.addWidget(title_label)
+        sidebar_layout.addWidget(self.detection_label)
+        sidebar_layout.addWidget(self.left_hand_label)
+        sidebar_layout.addWidget(self.right_hand_label)
+        sidebar_layout.addStretch()
+
+        main_layout.addWidget(sidebar)
+        self.setCentralWidget(central_widget)
 
         self.camera = cv2.VideoCapture(CAMERA_INDEX)
 
@@ -44,6 +72,12 @@ class MainWindow(QMainWindow):
         self.frame_timer.start(16)
 
     def update_frame(self) -> None:
+
+        # frames start with neutral labels
+        self.detection_label.setText("No hand detected")
+        self.left_hand_label.setText("Left hand: --")
+        self.right_hand_label.setText("Right hand: --")
+
         success, frame = self.camera.read()
 
         if not success:
@@ -74,10 +108,16 @@ class MainWindow(QMainWindow):
 
                 gesture = classify_gesture(hand_landmarks)
 
-                draw_hand(frame, hand_landmarks)
-                draw_gesture_status(frame, position, gesture)
+                self.detection_label.setText("Hand detected")
 
-            draw_detection_status(frame)
+                if position == "only":
+                    self.left_hand_label.setText(f"One hand: {gesture.value}")
+                elif position == "left":
+                    self.left_hand_label.setText(f"Left hand: {gesture.value}")
+                else:
+                    self.right_hand_label.setText(f"Right hand: {gesture.value}")
+
+                draw_hand(frame, hand_landmarks)
 
         self.display_frame(frame)
 
