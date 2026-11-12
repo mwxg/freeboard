@@ -10,5 +10,5 @@ MIN_HAND_PRESENCE_CONFIDENCE = 0.5 # basically asks if the hand is still there i
 MIN_TRACKING_CONFIDENCE = 0.5 # did it successfully track the hand from prev frame?
 
 # Gesture recognition
-FINGER_STRAIGHT_ANGLE = 160.0
+FINGER_STRAIGHT_ANGLE = 165.0
 PINCH_DISTANCE_RATIO = 0.25 # how close thumb and index fingers are relative to hand size
