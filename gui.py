@@ -93,27 +93,36 @@ class MainWindow(QMainWindow):
 
         result = detect_hands(self.landmarker, frame)
 
+        hands = {}
+
         if result.hand_landmarks:
             for hand_landmarks, handedness in zip(
                 result.hand_landmarks,
                 result.handedness,
             ):
-                gesture = classify_gesture(hand_landmarks)
-                hand_name = handedness[0].category_name.lower()
 
-                handedness_score = round(handedness[0].score, 2)
+                category = handedness[0]
+                hand_name = category.category_name.lower()
+
+                hands[hand_name] = {
+                    "landmarks": hand_landmarks,
+                    "gesture": classify_gesture(hand_landmarks),
+                    "confidence": round(category.score, 2),
+                }
 
                 self.detection_label.setText("Hand detected")
 
-                if hand_name == "left":
-                    self.left_hand_label.setText(f"Left hand ({handedness_score:.2f}): {gesture.value}")
-                    if (
-                        gesture is Gesture.INDEX_POINT
-                        and handedness_score >= 0.8
-                    ):
-                        self.action_tracking = True
-                elif hand_name == "right":
-                    self.right_hand_label.setText(f"Right hand ({handedness_score:.2f}): {gesture.value}")
+                left_hand = hands.get("left")
+                right_hand = hands.get("right")
+
+                if left_hand is not None:
+                    self.left_hand_label.setText(f"Left hand ({left_hand["confidence"]}): {left_hand["gesture"]}")
+                    self.action_tracking = (
+                        left_hand["gesture"] is Gesture.INDEX_POINT
+                        and left_hand["confidence"] >= 0.8
+                    )
+                if right_hand is not None:
+                    self.right_hand_label.setText(f"Right hand ({right_hand["confidence"]}): {right_hand["gesture"]}")
 
                 draw_hand(frame, hand_landmarks)
 
