@@ -116,13 +116,13 @@ class MainWindow(QMainWindow):
                 right_hand = hands.get("right")
 
                 if left_hand is not None:
-                    self.left_hand_label.setText(f"Left hand ({left_hand["confidence"]}): {left_hand["gesture"]}")
+                    self.left_hand_label.setText(f"Left hand ({left_hand["confidence"]}): {left_hand["gesture"].value}")
                     self.action_tracking = (
                         left_hand["gesture"] is Gesture.INDEX_POINT
                         and left_hand["confidence"] >= 0.8
                     )
                 if right_hand is not None:
-                    self.right_hand_label.setText(f"Right hand ({right_hand["confidence"]}): {right_hand["gesture"]}")
+                    self.right_hand_label.setText(f"Right hand ({right_hand["confidence"]}): {right_hand["gesture"].value}")
 
                 draw_hand(frame, hand_landmarks)
 
