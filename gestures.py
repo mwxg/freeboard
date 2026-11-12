@@ -122,8 +122,6 @@ def classify_gesture(landmarks: Sequence[Landmark]) -> Gesture:
         finger_is_extended(landmarks, PINKY_MCP, PINKY_PIP, PINKY_DIP, PINKY_TIP)
     )
 
-    print(fingers)
-
     # normalize against hand size because moving away from camera can change it
     hand_size = distance(landmarks[WRIST], landmarks[MIDDLE_MCP])
     pinch_distance = distance(
