@@ -13,7 +13,7 @@ from PySide6.QtWidgets import (
 from config import CAMERA_INDEX, MODEL_PATH, WINDOW_NAME
 from detector import create_hand_landmarker, detect_hands
 from drawing import draw_hand
-from gestures import classify_gesture
+from gestures import Gesture, classify_gesture
 
 
 class MainWindow(QMainWindow):
@@ -50,11 +50,16 @@ class MainWindow(QMainWindow):
         self.detection_label = QLabel("No hand detected")
         self.left_hand_label = QLabel("Left hand: --")
         self.right_hand_label = QLabel("Right hand: --")
+        self.action_tracking_label = QLabel("Action tracking: inactive")
+
+        # computer actions are enabled only while left index is pointing up
+        self.action_tracking = False
 
         sidebar_layout.addWidget(title_label)
         sidebar_layout.addWidget(self.detection_label)
         sidebar_layout.addWidget(self.left_hand_label)
         sidebar_layout.addWidget(self.right_hand_label)
+        sidebar_layout.addWidget(self.action_tracking_label)
         sidebar_layout.addStretch()
 
         main_layout.addWidget(sidebar)
@@ -77,6 +82,8 @@ class MainWindow(QMainWindow):
         self.detection_label.setText("No hand detected")
         self.left_hand_label.setText("Left hand: --")
         self.right_hand_label.setText("Right hand: --")
+        self.action_tracking = False
+        self.action_tracking_label.setText("Action tracking: inactive")
 
         success, frame = self.camera.read()
 
@@ -90,35 +97,26 @@ class MainWindow(QMainWindow):
         result = detect_hands(self.landmarker, frame)
 
         if result.hand_landmarks:
-
-            # sort hands by the wrist's position
-            # yes, the user could potentially cross hands...
-            hands_left_to_right = sorted(
+            for hand_landmarks, handedness in zip(
                 result.hand_landmarks,
-                key=lambda hand: hand[0].x,
-            )
-
-            for index, hand_landmarks in enumerate(hands_left_to_right):
-                if len(hands_left_to_right) == 1:
-                    position = "only"
-                elif index == 0:
-                    position = "left"
-                else:
-                    position = "right"
-
+                result.handedness,
+            ):
                 gesture = classify_gesture(hand_landmarks)
+                hand_name = handedness[0].category_name.lower()
 
                 self.detection_label.setText("Hand detected")
 
-                if position == "only":
-                    self.left_hand_label.setText(f"One hand: {gesture.value}")
-                    self.right_hand_label.setText(f"--")
-                elif position == "left":
+                if hand_name == "left":
                     self.left_hand_label.setText(f"Left hand: {gesture.value}")
-                else:
+                    if gesture is Gesture.INDEX_POINT:
+                        self.action_tracking = True
+                elif hand_name == "right":
                     self.right_hand_label.setText(f"Right hand: {gesture.value}")
 
                 draw_hand(frame, hand_landmarks)
+
+        if self.action_tracking:
+            self.action_tracking_label.setText("Action tracking: active")
 
         self.display_frame(frame)
 
