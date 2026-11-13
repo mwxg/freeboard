@@ -10,12 +10,11 @@ from PySide6.QtWidgets import (
     QFrame,
 )
 
-from config import CAMERA_INDEX, MODEL_PATH, WINDOW_NAME
-from detector import create_hand_landmarker, detect_hands
-from drawing import draw_hand
-from gestures import Gesture, classify_gesture
-
-from volume_gesture import VolumeGestureController
+from .config import CAMERA_INDEX, MODEL_PATH, WINDOW_NAME
+from .detector import create_hand_landmarker, detect_hands
+from .drawing import draw_hand
+from .gestures import Gesture, classify_gesture
+from .volume_gesture import VolumeGestureController
 
 
 class MainWindow(QMainWindow):

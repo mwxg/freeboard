@@ -1,10 +1,10 @@
-from gestures import(
+from .gestures import(
     Gesture,
     Landmark,
     INDEX_TIP,
     THUMB_TIP
 )
-from config import VOLUME_SLIDER_PADDING
+from .config import VOLUME_SLIDER_PADDING
 
 from collections.abc import Sequence
 from collections import deque

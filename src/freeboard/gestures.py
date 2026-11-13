@@ -2,7 +2,7 @@ from enum import Enum
 from math import acos, degrees, hypot
 from typing import Protocol
 from collections.abc import Sequence
-from config import FINGER_STRAIGHT_ANGLE, PINCH_DISTANCE_RATIO
+from .config import FINGER_STRAIGHT_ANGLE, PINCH_DISTANCE_RATIO
 
 
 # practicing using Protocols

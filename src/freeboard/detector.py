@@ -3,7 +3,7 @@ import time
 import cv2
 import mediapipe as mp
 
-from config import (
+from .config import (
     MIN_HAND_DETECTION_CONFIDENCE,
     MIN_HAND_PRESENCE_CONFIDENCE,
     MIN_TRACKING_CONFIDENCE,

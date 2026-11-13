@@ -1,5 +1,5 @@
 import cv2
-from gestures import Gesture
+from .gestures import Gesture
 
 
 # check what google wrote for hand_landmarker
