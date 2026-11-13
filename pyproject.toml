@@ -5,6 +5,7 @@ requires-python = ">=3.14"
 dependencies = [
     "mediapipe==1.2.2",
     "opencv-python==5.0.0.93",
+    "pycaw>=20260927",
     "pyside6>=6.12.0",
 ]
 
