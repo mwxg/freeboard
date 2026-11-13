@@ -17,8 +17,8 @@ class VolumeGestureController:
         self.start_y: float | None = None
         self.current_volume: int | None = None
 
-        # 4/5 of the last 5 frames must be a pinch to be "stable"
-        self.pinch_history: deque[bool] = deque(maxlen=5)
+        # 45/60 of the last 60 frames must be a pinch to be "stable"
+        self.pinch_history: deque[bool] = deque(maxlen=60)
 
     def reset(self) -> None:
         self.drag_active = False
@@ -43,7 +43,7 @@ class VolumeGestureController:
         if self.drag_active:
             self.pinch_history.append(pinch_detected)
 
-            if sum(self.pinch_history) < 4:
+            if sum(self.pinch_history) < 45:
                 self.reset()
                 return None
 
@@ -68,7 +68,7 @@ class VolumeGestureController:
 
             self.drag_active = True
             self.start_y = pinch_y
-            self.pinch_history.extend([True] * 5)
+            self.pinch_history.extend([True] * 60)
 
         assert self.start_y is not None
 
