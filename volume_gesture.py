@@ -7,6 +7,7 @@ from gestures import(
 from config import VOLUME_SLIDER_PADDING
 
 from collections.abc import Sequence
+from collections import deque
 
 class VolumeGestureController:
 
@@ -16,10 +17,14 @@ class VolumeGestureController:
         self.start_y: float | None = None
         self.current_volume: int | None = None
 
+        # 4/5 of the last 5 frames must be a pinch to be "stable"
+        self.pinch_history: deque[bool] = deque(maxlen=5)
+
     def reset(self) -> None:
         self.drag_active = False
         self.start_y = None
         self.current_volume = None
+        self.pinch_history.clear()
 
     def update(
         self,
@@ -28,29 +33,43 @@ class VolumeGestureController:
         right_landmarks: Sequence[Landmark] | None,
     ) -> int | None:
         """return a new volume if one needs to be applied"""
-        
-        if (
-            not action_tracking
-            or right_gesture is not Gesture.PINCH
-            or right_landmarks is None
-        ):
-            self.reset()
+
+        pinch_detected = (
+            action_tracking
+            and right_gesture is Gesture.PINCH
+            and right_landmarks is not None
+        )
+
+        if self.drag_active:
+            self.pinch_history.append(pinch_detected)
+
+            if sum(self.pinch_history) < 4:
+                self.reset()
+                return None
+
+            # keep the drag alive but don't update it using an unreliable frame
+            if not pinch_detected:
+                return None
+
+        elif not pinch_detected:
             return None
+
+        # from here onward this frame has valid pinch landmarks
+        assert right_landmarks is not None
 
         pinch_y = (
             right_landmarks[THUMB_TIP].y
             + right_landmarks[INDEX_TIP].y
         ) / 2
 
-        # set start_y once only when the pinch starts
         if not self.drag_active:
             if pinch_y <= self.top_y:
                 return None
 
             self.drag_active = True
             self.start_y = pinch_y
+            self.pinch_history.extend([True] * 5)
 
-        # start_y has to exist while dragging
         assert self.start_y is not None
 
         slider_height = self.start_y - self.top_y
