@@ -149,7 +149,7 @@ class MainWindow(QMainWindow):
 
         if volume is not None:
             self.system_volume.set_volume(volume)
-            self.volume_label.setText(f"Volume: {volume}%")
+            self.volume_label.setText(f"Volume: {self.system_volume.get_volume()}%")
 
         if self.action_tracking:
             self.action_tracking_label.setText("Action tracking: active")

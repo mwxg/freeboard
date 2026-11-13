@@ -10,8 +10,6 @@ Freeboard is a desktop prototype that uses a webcam to recognize hand gestures i
 - Uses a left-hand index point to activate action tracking
 - Converts right-hand pinch movement into a volume value from 0 to 100
 
-> Volume control is currently a UI preview; it does not change the system volume yet.
-
 ## Requirements
 
 - Python 3.14 or newer
