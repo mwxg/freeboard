@@ -12,3 +12,6 @@ MIN_TRACKING_CONFIDENCE = 0.5 # did it successfully track the hand from prev fra
 # Gesture recognition
 FINGER_STRAIGHT_ANGLE = 165.0
 PINCH_DISTANCE_RATIO = 0.2 # how close thumb and index fingers are relative to hand size
+
+# controls
+VOLUME_SLIDER_PADDING = 0.10 # how far the invisible volume slider is from the top/bottom of the screen

@@ -4,11 +4,13 @@ from gestures import(
     INDEX_TIP,
     THUMB_TIP
 )
+from config import VOLUME_SLIDER_PADDING
+
 from collections.abc import Sequence
 
 class VolumeGestureController:
 
-    def __init__(self, top_y: float=0.05):
+    def __init__(self, top_y: float=VOLUME_SLIDER_PADDING):
         self.top_y = top_y
         self.drag_active = False
         self.start_y: float | None = None
