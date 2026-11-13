@@ -18,6 +18,7 @@ class Gesture(Enum):
     OPEN_PALM = "open_palm"
     FIST = "fist"
     PINCH = "pinch"
+    MIDDLE_PINCH = "middle_pinch"
     INDEX_POINT = "index_point"
     PEACE = "peace"
     IM_POINT = "im_point" # means "index middle point" (basically closed peace sign)
@@ -134,6 +135,11 @@ def classify_gesture(landmarks: Sequence[Landmark]) -> Gesture:
         landmarks[INDEX_TIP],
     )
 
+    middle_pinch_distance = distance(
+        landmarks[THUMB_TIP],
+        landmarks[MIDDLE_TIP],
+    )
+
     # used for the two finger point
     ipip_mpip_distance = distance(
         landmarks[INDEX_PIP],
@@ -142,7 +148,13 @@ def classify_gesture(landmarks: Sequence[Landmark]) -> Gesture:
 
     if hand_size > 0 and pinch_distance / hand_size < PINCH_DISTANCE_RATIO:
         return Gesture.PINCH
-    if hand_size > 0 and ipip_mpip_distance / hand_size < IM_POINT_DISTANCE_RATIO:
+    if hand_size > 0 and middle_pinch_distance / hand_size < PINCH_DISTANCE_RATIO:
+        return Gesture.MIDDLE_PINCH
+    if (
+        hand_size > 0
+        and ipip_mpip_distance / hand_size < IM_POINT_DISTANCE_RATIO
+        and fingers[0] and fingers[1]
+    ):
         return Gesture.IM_POINT
     if all(fingers):
         return Gesture.OPEN_PALM
