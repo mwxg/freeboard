@@ -2,7 +2,10 @@ from enum import Enum
 from math import acos, degrees, hypot
 from typing import Protocol
 from collections.abc import Sequence
-from .config import FINGER_STRAIGHT_ANGLE, PINCH_DISTANCE_RATIO
+from .config import (
+    FINGER_STRAIGHT_ANGLE, PINCH_DISTANCE_RATIO,
+    IM_POINT_DISTANCE_RATIO,
+)
 
 
 # practicing using Protocols
@@ -17,6 +20,7 @@ class Gesture(Enum):
     PINCH = "pinch"
     INDEX_POINT = "index_point"
     PEACE = "peace"
+    IM_POINT = "im_point" # means "index middle point" (basically closed peace sign)
     UNKNOWN = "unknown"
 
 
@@ -124,13 +128,22 @@ def classify_gesture(landmarks: Sequence[Landmark]) -> Gesture:
 
     # normalize against hand size because moving away from camera can change it
     hand_size = distance(landmarks[WRIST], landmarks[MIDDLE_MCP])
+
     pinch_distance = distance(
         landmarks[THUMB_TIP],
         landmarks[INDEX_TIP],
     )
 
+    # used for the two finger point
+    ipip_mpip_distance = distance(
+        landmarks[INDEX_PIP],
+        landmarks[MIDDLE_PIP],
+    )
+
     if hand_size > 0 and pinch_distance / hand_size < PINCH_DISTANCE_RATIO:
         return Gesture.PINCH
+    if hand_size > 0 and ipip_mpip_distance / hand_size < IM_POINT_DISTANCE_RATIO:
+        return Gesture.IM_POINT
     if all(fingers):
         return Gesture.OPEN_PALM
     if fingers[0] and not any(fingers[1:]):
