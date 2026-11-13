@@ -38,6 +38,7 @@ Run the application from the repository root so it can find the model.
 | Right-hand pinch | Starts volume tracking while action tracking is active |
 | Open palm | Recognition only |
 | Peace sign | Recognition only |
+| Closed peace sign (im_point) | Recognition only |
 
 To try the volume gesture, point upward with your left index finger, pinch your right thumb and index finger together, and move the pinch upward. Release the pinch to stop.
 
