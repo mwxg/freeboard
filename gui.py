@@ -15,6 +15,8 @@ from detector import create_hand_landmarker, detect_hands
 from drawing import draw_hand
 from gestures import Gesture, classify_gesture
 
+from volume_gesture import VolumeGestureController
+
 
 class MainWindow(QMainWindow):
     def __init__(self) -> None:
@@ -52,6 +54,8 @@ class MainWindow(QMainWindow):
         self.right_hand_label = QLabel("Right hand: --")
         self.action_tracking_label = QLabel("Action tracking: inactive")
 
+        self.volume_label = QLabel(f"Volume: 0%")
+
         # computer actions are enabled only while left index is pointing up
         self.action_tracking = False
 
@@ -71,6 +75,9 @@ class MainWindow(QMainWindow):
             raise RuntimeError("Could not open webcam")
 
         self.landmarker = create_hand_landmarker()
+
+        # Gesture controllers
+        self.volume_gesture = VolumeGestureController()
 
         self.frame_timer = QTimer(self)
         self.frame_timer.timeout.connect(self.update_frame)
@@ -123,6 +130,19 @@ class MainWindow(QMainWindow):
                     )
                 if right_hand is not None:
                     self.right_hand_label.setText(f"Right hand ({right_hand["confidence"]}): {right_hand["gesture"].value}")
+
+                volume = self.volume_gesture.update(
+                    action_tracking=self.action_tracking,
+                    right_gesture=(
+                        right_hand["gesture"] if right_hand else None
+                    ),
+                    right_landmarks=(
+                        right_hand["landmarks"] if right_hand else None
+                    ),
+                )
+
+                if volume is not None:
+                    self.volume_label.setText(f"Volume: {volume}%")
 
                 draw_hand(frame, hand_landmarks)
 

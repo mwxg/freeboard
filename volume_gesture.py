@@ -23,7 +23,7 @@ class VolumeGestureController:
         """return a new volume if one needs to be applied"""
         if not action_tracking:
             return None
-        if not (right_gesture is Gesture.PINCH):
+        if right_gesture is None:
             return None
         if right_landmarks is None:
             return None
