@@ -11,3 +11,6 @@ class WindowsVolumeController:
 
     def set_volume(self, percent: int) -> None:
         self.device.volume_percent = max(0, min(100, percent))
+        self.device.EndpointVolume.SetMute(0, None)
+        if self.device.volume_percent == 0:
+            self.device.EndpointVolume.SetMute(1, None)
