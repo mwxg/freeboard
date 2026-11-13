@@ -15,6 +15,7 @@ from .detector import create_hand_landmarker, detect_hands
 from .drawing import draw_hand
 from .gestures import Gesture, classify_gesture
 from .volume_gesture import VolumeGestureController
+from .system_volume import WindowsVolumeController
 
 
 class MainWindow(QMainWindow):
@@ -76,12 +77,14 @@ class MainWindow(QMainWindow):
 
         self.landmarker = create_hand_landmarker()
 
-        # Gesture controllers
+        # gesture controllers
         self.volume_gesture = VolumeGestureController()
 
         self.frame_timer = QTimer(self)
         self.frame_timer.timeout.connect(self.update_frame)
         self.frame_timer.start(16)
+
+        self.system_volume = WindowsVolumeController()
 
     def update_frame(self) -> None:
 
@@ -145,6 +148,7 @@ class MainWindow(QMainWindow):
         )
 
         if volume is not None:
+            self.system_volume.set_volume(volume)
             self.volume_label.setText(f"Volume: {volume}%")
 
         if self.action_tracking:
