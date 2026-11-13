@@ -64,6 +64,7 @@ class MainWindow(QMainWindow):
         sidebar_layout.addWidget(self.left_hand_label)
         sidebar_layout.addWidget(self.right_hand_label)
         sidebar_layout.addWidget(self.action_tracking_label)
+        sidebar_layout.addWidget(self.volume_label)
         sidebar_layout.addStretch()
 
         main_layout.addWidget(sidebar)
@@ -101,6 +102,8 @@ class MainWindow(QMainWindow):
         result = detect_hands(self.landmarker, frame)
 
         hands = {}
+        left_hand = None
+        right_hand = None
 
         if result.hand_landmarks:
             for hand_landmarks, handedness in zip(
@@ -114,37 +117,36 @@ class MainWindow(QMainWindow):
                 hands[hand_name] = {
                     "landmarks": hand_landmarks,
                     "gesture": classify_gesture(hand_landmarks),
-                    "confidence": round(category.score, 2),
+                    "confidence": category.score,
                 }
 
                 self.detection_label.setText("Hand detected")
-
-                left_hand = hands.get("left")
-                right_hand = hands.get("right")
-
-                if left_hand is not None:
-                    self.left_hand_label.setText(f"Left hand ({left_hand["confidence"]}): {left_hand["gesture"].value}")
-                    self.action_tracking = (
-                        left_hand["gesture"] is Gesture.INDEX_POINT
-                        and left_hand["confidence"] >= 0.8
-                    )
-                if right_hand is not None:
-                    self.right_hand_label.setText(f"Right hand ({right_hand["confidence"]}): {right_hand["gesture"].value}")
-
-                volume = self.volume_gesture.update(
-                    action_tracking=self.action_tracking,
-                    right_gesture=(
-                        right_hand["gesture"] if right_hand else None
-                    ),
-                    right_landmarks=(
-                        right_hand["landmarks"] if right_hand else None
-                    ),
-                )
-
-                if volume is not None:
-                    self.volume_label.setText(f"Volume: {volume}%")
-
                 draw_hand(frame, hand_landmarks)
+
+            left_hand = hands.get("left")
+            right_hand = hands.get("right")
+
+            if left_hand is not None:
+                self.left_hand_label.setText(f"Left hand ({left_hand["confidence"]:.2f}): {left_hand["gesture"].value}")
+                self.action_tracking = (
+                    left_hand["gesture"] is Gesture.INDEX_POINT
+                    and left_hand["confidence"] >= 0.8
+                )
+            if right_hand is not None:
+                self.right_hand_label.setText(f"Right hand ({right_hand["confidence"]:.2f}): {right_hand["gesture"].value}")
+
+        volume = self.volume_gesture.update(
+            action_tracking=self.action_tracking,
+            right_gesture=(
+                right_hand["gesture"] if right_hand else None
+            ),
+            right_landmarks=(
+                right_hand["landmarks"] if right_hand else None
+            ),
+        )
+
+        if volume is not None:
+            self.volume_label.setText(f"Volume: {volume}%")
 
         if self.action_tracking:
             self.action_tracking_label.setText("Action tracking: active")
