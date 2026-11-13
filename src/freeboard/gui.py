@@ -54,7 +54,7 @@ class MainWindow(QMainWindow):
         self.right_hand_label = QLabel("Right hand: --")
         self.action_tracking_label = QLabel("Action tracking: inactive")
 
-        self.volume_label = QLabel(f"Volume: 0%")
+        self.volume_label = QLabel(f"Volume: -%")
 
         # computer actions are enabled only while left index is pointing up
         self.action_tracking = False
@@ -85,6 +85,7 @@ class MainWindow(QMainWindow):
         self.frame_timer.start(16)
 
         self.system_volume = WindowsVolumeController()
+        self.volume_label.setText(f"Volume: {self.system_volume.get_volume()}%") # so it doesn't display 0 on opening
 
     def update_frame(self) -> None:
 
