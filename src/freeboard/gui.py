@@ -16,6 +16,8 @@ from .drawing import draw_hand
 from .gestures import Gesture, classify_gesture
 from .volume_gesture import VolumeGestureController
 from .brightness_gesture import BrightnessGestureController
+from .swipe_gesture import SwipeGestureController
+
 from .system_controls import WindowsSystemController
 
 
@@ -85,6 +87,7 @@ class MainWindow(QMainWindow):
         # gesture controllers
         self.volume_gesture = VolumeGestureController(self.system_control)
         self.brightness_gesture = BrightnessGestureController(self.system_control)
+        self.swipe_gesture = SwipeGestureController()
 
         self.frame_timer = QTimer(self)
         self.frame_timer.timeout.connect(self.update_frame)
@@ -171,6 +174,17 @@ class MainWindow(QMainWindow):
         if brightness is not None:
             self.system_control.set_brightness(brightness)
             self.brightness_label.setText(f"Brightness: {self.system_control.get_brightness()}%")
+
+        swipe = self.swipe_gesture.update(
+            action_tracking=self.action_tracking,
+            right_gesture=right_hand["gesture"] if right_hand else None,
+            right_landmarks=right_hand["landmarks"] if right_hand else None,
+        )
+
+        if swipe == "right":
+            self.system_control.next_track()
+        elif swipe == "left":
+            self.system_control.previous_track()
 
 
         if self.action_tracking:
