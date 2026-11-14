@@ -15,7 +15,7 @@ PINCH_DISTANCE_RATIO = 0.2 # how close thumb and index fingers are relative to h
 IM_POINT_DISTANCE_RATIO = 0.25
 
 # controls
+SLIDER_HEIGHT = 0.5 # 0 to 1 -> relative to screen height
 VOLUME_SLIDER_PADDING = 0.10 # how far the invisible volume slider is from the top/bottom of the screen
-VOLUME_SLIDER_HEIGHT = 0.5 # 0 to 1 -> relative to screen height
 
 STABLE_RATIO = (45, 60) # [0] of the last [1] frames must be stable for gesture to continue

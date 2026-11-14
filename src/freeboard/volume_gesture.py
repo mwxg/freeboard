@@ -4,7 +4,7 @@ from .gestures import(
     INDEX_TIP,
     THUMB_TIP
 )
-from .config import VOLUME_SLIDER_HEIGHT, STABLE_RATIO
+from .config import SLIDER_HEIGHT, STABLE_RATIO
 
 from collections.abc import Sequence
 from collections import deque
@@ -73,11 +73,11 @@ class VolumeGestureController:
         assert self.start_y is not None
 
         starting_slider_pos = self.start_volume # start at where current volume is
-        slider_bottom = self.start_y + (starting_slider_pos * VOLUME_SLIDER_HEIGHT)
+        slider_bottom = self.start_y + (starting_slider_pos * SLIDER_HEIGHT)
         # slider_top = self.start_y - (starting_slider_pos * VOLUME_SLIDER_HEIGHT)
 
         # where on the slider am I?
-        progress = (slider_bottom - pinch_y) / VOLUME_SLIDER_HEIGHT
+        progress = (slider_bottom - pinch_y) / SLIDER_HEIGHT
         progress = max(0.0, min(1.0, progress))
 
         volume = round(progress * 100)
