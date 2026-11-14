@@ -8,6 +8,7 @@ from .config import (
     SWIPE_MAX_VERTICAL_DRIFT,
     SWIPE_MIN_SPEED,
     SWIPE_WINDOW_SECONDS,
+    STABLE_RATIO,
 )
 from .gestures import Gesture, INDEX_TIP, Landmark
 
@@ -18,11 +19,15 @@ class SwipeGestureController:
         # (timestamp, x, y)
         self.history: deque[tuple[float, float, float]] = deque()
 
+        # same 45/60 stability requirement
+        self.index_point_history: deque[bool] = deque(maxlen=STABLE_RATIO[1])
+
         self.last_swipe_time = float("-inf")
         self.armed = True # if False, won't trigger a swipe
 
     def reset(self) -> None:
         self.history.clear()
+        self.index_point_history.clear()
         self.armed = True
 
     def update(
@@ -33,15 +38,29 @@ class SwipeGestureController:
     ) -> str | None:
         now = monotonic()
 
-        valid = (
+        index_point_detected = (
             action_tracking
             and right_gesture is Gesture.INDEX_POINT
             and right_landmarks is not None
         )
 
-        if not valid:
-            self.reset()
+        swipe_active = self.history or not self.armed
+
+        if swipe_active:
+            self.index_point_history.append(index_point_detected)
+
+            if sum(self.index_point_history) < STABLE_RATIO[0]:
+                self.reset()
+                return None
+
+            if not index_point_detected:
+                return None
+
+        elif not index_point_detected:
             return None
+
+        if not self.history and self.armed:
+            self.index_point_history.extend([True])
 
         tip = right_landmarks[INDEX_TIP]
         self.history.append((now, tip.x, tip.y))
