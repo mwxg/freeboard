@@ -15,7 +15,7 @@ from .detector import create_hand_landmarker, detect_hands
 from .drawing import draw_hand
 from .gestures import Gesture, classify_gesture
 from .volume_gesture import VolumeGestureController
-from .system_volume import WindowsVolumeController
+from .system_controls import WindowsSystemController
 
 
 class MainWindow(QMainWindow):
@@ -77,7 +77,7 @@ class MainWindow(QMainWindow):
 
         self.landmarker = create_hand_landmarker()
 
-        self.system_volume = WindowsVolumeController()
+        self.system_volume = WindowsSystemController()
 
         # gesture controllers
         self.volume_gesture = VolumeGestureController(self.system_volume)

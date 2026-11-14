@@ -5,14 +5,13 @@ from .gestures import(
     THUMB_TIP
 )
 from .config import VOLUME_SLIDER_HEIGHT
-from .system_volume import WindowsVolumeController
 
 from collections.abc import Sequence
 from collections import deque
 
 class VolumeGestureController:
 
-    def __init__(self, system_volume: WindowsVolumeController):
+    def __init__(self, system_volume):
         self.drag_active = False
         self.start_y: float | None = None
         self.current_volume: int | None = None
