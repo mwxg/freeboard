@@ -4,22 +4,23 @@ from .gestures import(
     MIDDLE_PIP,
     INDEX_PIP,
 )
-from .config import STABLE_RATIO, SLIDER_HEIGHT
+from .config import AppConfig
 
 from collections.abc import Sequence
 from collections import deque
 
 class BrightnessGestureController:
 
-    def __init__(self, system_control):
+    def __init__(self, system_control, config: AppConfig):
         self.drag_active = False
         self.start_y: float | None = None
         self.current_brightness: int | None = None
         self.start_brightness: float | None = None
 
-        self.im_point_history: deque[bool] = deque(maxlen=STABLE_RATIO[1])
+        self.im_point_history: deque[bool] = deque(maxlen=config.stable_window_frames)
 
         self.system_control = system_control
+        self.config = config
 
     def reset(self) -> None:
         self.drag_active = False
@@ -45,7 +46,7 @@ class BrightnessGestureController:
         if self.drag_active:
             self.im_point_history.append(im_point_detected)
 
-            if sum(self.im_point_history) < STABLE_RATIO[0]:
+            if sum(self.im_point_history) < self.config.stable_required_frames:
                 self.reset()
                 return None
 
@@ -67,17 +68,17 @@ class BrightnessGestureController:
         if not self.drag_active:
             self.drag_active = True
             self.start_y = im_point_y
-            self.im_point_history.extend([True] * STABLE_RATIO[1])
+            self.im_point_history.extend([True] * self.config.stable_window_frames)
             self.start_brightness = self.system_control.get_brightness() / 100
 
         assert self.start_y is not None
 
         starting_slider_pos = self.start_brightness # start at where current brightness is
-        slider_bottom = self.start_y + (starting_slider_pos * SLIDER_HEIGHT)
+        slider_bottom = self.start_y + (starting_slider_pos * self.config.slider_height)
         # slider_top = self.start_y - (starting_slider_pos * SLIDER_HEIGHT)
 
         # where on the slider am I?
-        progress = (slider_bottom - im_point_y) / SLIDER_HEIGHT
+        progress = (slider_bottom - im_point_y) / self.config.slider_height
         progress = max(0.0, min(1.0, progress))
 
         brightness = round(progress * 100)
@@ -85,5 +86,5 @@ class BrightnessGestureController:
         if brightness == self.current_brightness:
             return None
 
-        self.current_volume = brightness
+        self.current_brightness = brightness
         return brightness

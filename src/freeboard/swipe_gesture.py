@@ -2,28 +2,23 @@ from collections import deque
 from collections.abc import Sequence
 from time import monotonic
 
-from .config import (
-    SWIPE_COOLDOWN_SECONDS,
-    SWIPE_DISTANCE,
-    SWIPE_MAX_VERTICAL_DRIFT,
-    SWIPE_MIN_SPEED,
-    SWIPE_WINDOW_SECONDS,
-    STABLE_RATIO,
-)
+from .config import AppConfig
 from .gestures import Gesture, INDEX_TIP, Landmark
 
 
 class SwipeGestureController:
-    def __init__(self) -> None:
+    def __init__(self, config: AppConfig) -> None:
 
         # (timestamp, x, y)
         self.history: deque[tuple[float, float, float]] = deque()
 
-        # same 45/60 stability requirement
-        self.index_point_history: deque[bool] = deque(maxlen=STABLE_RATIO[1])
+        # same stability requirement
+        self.index_point_history: deque[bool] = deque(maxlen=config.stable_window_frames)
 
         self.last_swipe_time = float("-inf")
         self.armed = True # if False, won't trigger a swipe
+
+        self.config = config
 
     def reset(self) -> None:
         self.history.clear()
@@ -49,7 +44,7 @@ class SwipeGestureController:
         if swipe_active:
             self.index_point_history.append(index_point_detected)
 
-            if sum(self.index_point_history) < STABLE_RATIO[0]:
+            if sum(self.index_point_history) < self.config.stable_required_frames:
                 self.reset()
                 return None
 
@@ -60,20 +55,20 @@ class SwipeGestureController:
             return None
 
         if not self.history and self.armed:
-            self.index_point_history.extend([True] * STABLE_RATIO[1])
+            self.index_point_history.extend([True] * self.config.stable_window_frames)
 
         tip = right_landmarks[INDEX_TIP]
         self.history.append((now, tip.x, tip.y))
 
         # only consider recent movement
-        cutoff = now - SWIPE_WINDOW_SECONDS
+        cutoff = now - self.config.swipe_window_seconds
         while self.history and self.history[0][0] < cutoff:
             self.history.popleft()
 
         if (
             not self.armed
             or len(self.history) < 2 # need at least two to calculate speed
-            or now - self.last_swipe_time < SWIPE_COOLDOWN_SECONDS
+            or now - self.last_swipe_time < self.config.swipe_cooldown_seconds
         ):
             return None
 
@@ -88,9 +83,9 @@ class SwipeGestureController:
         horizontal_speed = abs(dx) / elapsed
 
         is_swipe = (
-            abs(dx) >= SWIPE_DISTANCE
-            and horizontal_speed >= SWIPE_MIN_SPEED
-            and abs(dy) <= SWIPE_MAX_VERTICAL_DRIFT
+            abs(dx) >= self.config.swipe_distance
+            and horizontal_speed >= self.config.swipe_min_speed
+            and abs(dy) <= self.config.swipe_max_vertical_drift
             and abs(dx) > abs(dy) * 2 # ensures movement isn't too diagonal
         )
 

@@ -4,22 +4,23 @@ from .gestures import(
     INDEX_TIP,
     THUMB_TIP
 )
-from .config import SLIDER_HEIGHT, STABLE_RATIO
+from .config import AppConfig
 
 from collections.abc import Sequence
 from collections import deque
 
 class VolumeGestureController:
 
-    def __init__(self, system_volume):
+    def __init__(self, system_volume, config: AppConfig):
         self.drag_active = False
         self.start_y: float | None = None
         self.current_volume: int | None = None
         self.start_volume: float | None = None
 
-        self.pinch_history: deque[bool] = deque(maxlen=STABLE_RATIO[1])
+        self.pinch_history: deque[bool] = deque(maxlen=config.stable_window_frames)
 
         self.system_volume = system_volume
+        self.config = config
 
     def reset(self) -> None:
         self.drag_active = False
@@ -45,7 +46,7 @@ class VolumeGestureController:
         if self.drag_active:
             self.pinch_history.append(pinch_detected)
 
-            if sum(self.pinch_history) < STABLE_RATIO[0]:
+            if sum(self.pinch_history) < self.config.stable_required_frames:
                 self.reset()
                 return None
 
@@ -67,17 +68,17 @@ class VolumeGestureController:
         if not self.drag_active:
             self.drag_active = True
             self.start_y = pinch_y
-            self.pinch_history.extend([True] * STABLE_RATIO[1])
+            self.pinch_history.extend([True] * self.config.stable_window_frames)
             self.start_volume = self.system_volume.get_volume() / 100
 
         assert self.start_y is not None
 
         starting_slider_pos = self.start_volume # start at where current volume is
-        slider_bottom = self.start_y + (starting_slider_pos * SLIDER_HEIGHT)
+        slider_bottom = self.start_y + (starting_slider_pos * self.config.slider_height)
         # slider_top = self.start_y - (starting_slider_pos * VOLUME_SLIDER_HEIGHT)
 
         # where on the slider am I?
-        progress = (slider_bottom - pinch_y) / SLIDER_HEIGHT
+        progress = (slider_bottom - pinch_y) / self.config.slider_height
         progress = max(0.0, min(1.0, progress))
 
         volume = round(progress * 100)

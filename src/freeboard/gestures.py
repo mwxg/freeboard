@@ -2,10 +2,7 @@ from enum import Enum
 from math import acos, degrees, hypot
 from typing import Protocol
 from collections.abc import Sequence
-from .config import (
-    FINGER_STRAIGHT_ANGLE, PINCH_DISTANCE_RATIO,
-    IM_POINT_DISTANCE_RATIO,
-)
+from .config import AppConfig
 
 
 # practicing using Protocols
@@ -91,7 +88,8 @@ def finger_is_extended(
     mcp: int,
     pip: int,
     dip: int,
-    tip: int
+    tip: int,
+    finger_straight_angle: int,
 ) -> bool:
     pip_angle = joint_angle(
         landmarks[mcp],
@@ -106,8 +104,8 @@ def finger_is_extended(
     )
 
     conditions = (
-        pip_angle > FINGER_STRAIGHT_ANGLE,
-        dip_angle > FINGER_STRAIGHT_ANGLE,
+        pip_angle > finger_straight_angle,
+        dip_angle > finger_straight_angle,
 
         # finger must be oriented upwards
         landmarks[pip].y < landmarks[mcp].y,
@@ -118,14 +116,14 @@ def finger_is_extended(
     return all(conditions)
 
 
-def classify_gesture(landmarks: Sequence[Landmark], handedness) -> Gesture:
+def classify_gesture(landmarks: Sequence[Landmark], handedness, config: AppConfig) -> Gesture:
 
     # check each finger if it's extended (except thumb)
     fingers = (
-        finger_is_extended(landmarks, INDEX_MCP, INDEX_PIP, INDEX_DIP, INDEX_TIP),
-        finger_is_extended(landmarks, MIDDLE_MCP, MIDDLE_PIP, MIDDLE_DIP, MIDDLE_TIP),
-        finger_is_extended(landmarks, RING_MCP, RING_PIP, RING_DIP, RING_TIP),
-        finger_is_extended(landmarks, PINKY_MCP, PINKY_PIP, PINKY_DIP, PINKY_TIP)
+        finger_is_extended(landmarks, INDEX_MCP, INDEX_PIP, INDEX_DIP, INDEX_TIP, config.finger_straight_angle),
+        finger_is_extended(landmarks, MIDDLE_MCP, MIDDLE_PIP, MIDDLE_DIP, MIDDLE_TIP, config.finger_straight_angle),
+        finger_is_extended(landmarks, RING_MCP, RING_PIP, RING_DIP, RING_TIP, config.finger_straight_angle),
+        finger_is_extended(landmarks, PINKY_MCP, PINKY_PIP, PINKY_DIP, PINKY_TIP, config.finger_straight_angle)
     )
 
     # normalize against hand size because moving away from camera can change it
@@ -149,14 +147,14 @@ def classify_gesture(landmarks: Sequence[Landmark], handedness) -> Gesture:
 
     # only right hand should have all these gestures
     if handedness != "left":
-        if hand_size > 0 and pinch_distance / hand_size < PINCH_DISTANCE_RATIO:
+        if hand_size > 0 and pinch_distance / hand_size < config.pinch_distance_ratio:
             return Gesture.PINCH
-        if hand_size > 0 and middle_pinch_distance / hand_size < PINCH_DISTANCE_RATIO:
+        if hand_size > 0 and middle_pinch_distance / hand_size < config.pinch_distance_ratio:
             return Gesture.MIDDLE_PINCH
         if all(fingers):
             return Gesture.OPEN_PALM
         if fingers[0] and fingers[1] and not any(fingers[2:]):
-            if hand_size > 0 and ipip_mpip_distance / hand_size < IM_POINT_DISTANCE_RATIO:
+            if hand_size > 0 and ipip_mpip_distance / hand_size < config.im_point_distance_ratio:
                 return Gesture.IM_POINT
             return Gesture.PEACE
 

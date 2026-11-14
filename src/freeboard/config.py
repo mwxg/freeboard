@@ -1,28 +1,33 @@
 from pathlib import Path
+from dataclasses import dataclass
 
 MODEL_PATH = Path("models/hand_landmarker.task")
-CAMERA_INDEX = 0 # users may have more than one camera
 WINDOW_NAME = "Freeboard Camera"
-
 NUM_HANDS = 2
-MIN_HAND_DETECTION_CONFIDENCE = 0.5
-MIN_HAND_PRESENCE_CONFIDENCE = 0.5 # basically asks if the hand is still there in the tracked region
-MIN_TRACKING_CONFIDENCE = 0.5 # did it successfully track the hand from prev frame?
 
-# Gesture recognition
-FINGER_STRAIGHT_ANGLE = 165.0
-PINCH_DISTANCE_RATIO = 0.2 # how close thumb and index fingers are relative to hand size
-IM_POINT_DISTANCE_RATIO = 0.25
+@dataclass
+class AppConfig:
+    camera_index: int = 0
 
-# controls
-SLIDER_HEIGHT = 0.5 # 0 to 1 -> relative to screen height
-VOLUME_SLIDER_PADDING = 0.10 # how far the invisible volume slider is from the top/bottom of the screen
+    # options for handlandmarker
+    min_hand_detection_confidence: float = 0.5
+    min_hand_presence_confidence: float = 0.5 # basically asks if the hand is still there in the tracked region
+    min_tracking_confidence: float = 0.5 # did it successfully track the hand from prev frame?
 
-STABLE_RATIO = (45, 60) # [0] of the last [1] frames must be stable for gesture to continue
+    # gesture recognition
+    finger_straight_angle: int = 165
+    pinch_distance_ratio: float = 0.2 # how close thumb and index fingers are relative to hand size
+    im_point_distance_ratio: float = 0.25 # same as above except for the closed peace sign (uses pip joints)
 
-# swiping
-SWIPE_DISTANCE = 0.18 # user must swipe at least this far (% of frame width)
-SWIPE_MIN_SPEED = 0.65 # frame widths per second
-SWIPE_MAX_VERTICAL_DRIFT = 0.10
-SWIPE_WINDOW_SECONDS = 0.35 # only positions from the last _ seconds contribute to swipe detection
-SWIPE_COOLDOWN_SECONDS = 0.60 # how often you can swipe
+    slider_height: float = 0.5 # 0 to 1 -> relative to screen height
+
+    # _ out _ frames must be stable for a gesture to count
+    # used for things like swiping
+    stable_required_frames: int = 45
+    stable_window_frames: int = 60
+
+    swipe_distance: float = 0.18 # user must swipe at least this far (% of frame width)
+    swipe_min_speed: float = 0.65 # frame widths per second
+    swipe_max_vertical_drift: float = 0.10 
+    swipe_window_seconds: float = 0.35 # only positions from the last _ seconds contribute to swipe detection
+    swipe_cooldown_seconds: float = 0.60 # how often you can swipe

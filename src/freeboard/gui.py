@@ -10,7 +10,7 @@ from PySide6.QtWidgets import (
     QFrame,
 )
 
-from .config import CAMERA_INDEX, MODEL_PATH, WINDOW_NAME
+from .config import AppConfig, MODEL_PATH, WINDOW_NAME
 from .detector import create_hand_landmarker, detect_hands
 from .drawing import draw_hand
 from .gestures import Gesture, classify_gesture
@@ -29,6 +29,8 @@ class MainWindow(QMainWindow):
             raise FileNotFoundError(
                 f"Missing MediaPipe model: {MODEL_PATH}"
             )
+
+        self.config = AppConfig()
 
         self.setWindowTitle(WINDOW_NAME)
         self.resize(960, 720)
@@ -78,19 +80,19 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(sidebar)
         self.setCentralWidget(central_widget)
 
-        self.camera = cv2.VideoCapture(CAMERA_INDEX)
+        self.camera = cv2.VideoCapture(self.config.camera_index)
 
         if not self.camera.isOpened():
             raise RuntimeError("Could not open webcam")
 
-        self.landmarker = create_hand_landmarker()
+        self.landmarker = create_hand_landmarker(self.config)
 
         self.system_control = WindowsSystemController()
 
         # gesture controllers
-        self.volume_gesture = VolumeGestureController(self.system_control)
-        self.brightness_gesture = BrightnessGestureController(self.system_control)
-        self.swipe_gesture = SwipeGestureController()
+        self.volume_gesture = VolumeGestureController(self.system_control, self.config)
+        self.brightness_gesture = BrightnessGestureController(self.system_control, self.config)
+        self.swipe_gesture = SwipeGestureController(self.config)
 
         self.frame_timer = QTimer(self)
         self.frame_timer.timeout.connect(self.update_frame)
@@ -131,7 +133,7 @@ class MainWindow(QMainWindow):
 
                 hands[hand_name] = {
                     "landmarks": hand_landmarks,
-                    "gesture": classify_gesture(hand_landmarks, hand_name),
+                    "gesture": classify_gesture(hand_landmarks, hand_name, self.config),
                     "confidence": category.score,
                 }
 
