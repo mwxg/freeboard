@@ -37,6 +37,7 @@ Run the application from the repository root so it can find the model.
 | Left index point | Activates action tracking |
 | Right-hand pinch | Starts volume tracking while action tracking is active |
 | Right-hand IM point | Starts brightness tracking while action tracking is active |
+| Right-hand swipe | Skips to the next media / goes to previous |
 | Open palm | Recognition only |
 | Peace sign | Recognition only |
 
@@ -46,6 +47,7 @@ Point upward with your left index finger and hold it there to activate action tr
 
 To try the **volume** gesture, pinch your right thumb and index finger together, and move the pinch up and down. Release the pinch to stop.  
 To try the **brightness** gesture, point upward with your right index and middle fingers, and move them up and down. Stop the gesture to stop.  
+To try the **skip/prev** gesture, point upward with your right index finger and swipe left or right. Try to keep the movement controlled and at a constant speed for best results.
 
 ## Configuration
 
