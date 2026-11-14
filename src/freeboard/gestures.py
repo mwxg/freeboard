@@ -117,7 +117,8 @@ def finger_is_extended(
 
     return all(conditions)
 
-def classify_gesture(landmarks: Sequence[Landmark]) -> Gesture:
+
+def classify_gesture(landmarks: Sequence[Landmark], handedness) -> Gesture:
 
     # check each finger if it's extended (except thumb)
     fingers = (
@@ -146,22 +147,25 @@ def classify_gesture(landmarks: Sequence[Landmark]) -> Gesture:
         landmarks[MIDDLE_PIP],
     )
 
-    if hand_size > 0 and pinch_distance / hand_size < PINCH_DISTANCE_RATIO:
-        return Gesture.PINCH
-    if hand_size > 0 and middle_pinch_distance / hand_size < PINCH_DISTANCE_RATIO:
-        return Gesture.MIDDLE_PINCH
+    # only right hand should have all these gestures
+    if handedness != "left":
+        if hand_size > 0 and pinch_distance / hand_size < PINCH_DISTANCE_RATIO:
+            return Gesture.PINCH
+        if hand_size > 0 and middle_pinch_distance / hand_size < PINCH_DISTANCE_RATIO:
+            return Gesture.MIDDLE_PINCH
+        if all(fingers):
+            return Gesture.OPEN_PALM
+        if fingers[0] and fingers[1] and not any(fingers[2:]):
+            return Gesture.PEACE
+
+    if fingers[0] and not any(fingers[1:]):
+        return Gesture.INDEX_POINT
     if (
         hand_size > 0
         and ipip_mpip_distance / hand_size < IM_POINT_DISTANCE_RATIO
         and fingers[0] and fingers[1]
     ):
         return Gesture.IM_POINT
-    if all(fingers):
-        return Gesture.OPEN_PALM
-    if fingers[0] and not any(fingers[1:]):
-        return Gesture.INDEX_POINT
-    if fingers[0] and fingers[1] and not any(fingers[2:]):
-        return Gesture.PEACE
 
     # no gesture detected
     return Gesture.UNKNOWN

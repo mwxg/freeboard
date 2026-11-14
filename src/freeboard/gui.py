@@ -120,7 +120,7 @@ class MainWindow(QMainWindow):
 
                 hands[hand_name] = {
                     "landmarks": hand_landmarks,
-                    "gesture": classify_gesture(hand_landmarks),
+                    "gesture": classify_gesture(hand_landmarks, hand_name),
                     "confidence": category.score,
                 }
 
