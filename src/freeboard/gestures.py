@@ -156,16 +156,12 @@ def classify_gesture(landmarks: Sequence[Landmark], handedness) -> Gesture:
         if all(fingers):
             return Gesture.OPEN_PALM
         if fingers[0] and fingers[1] and not any(fingers[2:]):
+            if hand_size > 0 and ipip_mpip_distance / hand_size < IM_POINT_DISTANCE_RATIO:
+                return Gesture.IM_POINT
             return Gesture.PEACE
 
     if fingers[0] and not any(fingers[1:]):
         return Gesture.INDEX_POINT
-    if (
-        hand_size > 0
-        and ipip_mpip_distance / hand_size < IM_POINT_DISTANCE_RATIO
-        and fingers[0] and fingers[1]
-    ):
-        return Gesture.IM_POINT
 
     # no gesture detected
     return Gesture.UNKNOWN
