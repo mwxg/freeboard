@@ -36,11 +36,15 @@ Run the application from the repository root so it can find the model.
 | --- | --- |
 | Left index point | Activates action tracking |
 | Right-hand pinch | Starts volume tracking while action tracking is active |
+| Right-hand IM point | Starts brightness tracking while action tracking is active |
 | Open palm | Recognition only |
 | Peace sign | Recognition only |
-| Closed peace sign (im_point) | Recognition only |
+<small>"IM point" means pointing with your index and middle finger, like a closed peace sign.</small>
 
-To try the volume gesture, point upward with your left index finger, pinch your right thumb and index finger together, and move the pinch upward. Release the pinch to stop.
+Point upward with your left index finger and hold it there to activate action tracking. The app will not perform any actions if you do not do this.
+
+To try the **volume** gesture, pinch your right thumb and index finger together, and move the pinch up and down. Release the pinch to stop.  
+To try the **brightness** gesture, point upward with your right index and middle fingers, and move them up and down. Stop the gesture to stop.  
 
 ## Configuration
 
@@ -48,7 +52,5 @@ Camera selection, detection thresholds, gesture sensitivity, and volume-slider p
 
 ## Planned work
 
-- Connect gestures to system volume
-- Add brightness and media controls
 - Make gesture mappings configurable
 - Add automated tests and an in-app settings screen
