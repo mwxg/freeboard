@@ -15,6 +15,7 @@ from .detector import create_hand_landmarker, detect_hands
 from .drawing import draw_hand
 from .gestures import Gesture, classify_gesture
 from .volume_gesture import VolumeGestureController
+from .brightness_gesture import BrightnessGestureController
 from .system_controls import WindowsSystemController
 
 
@@ -54,7 +55,8 @@ class MainWindow(QMainWindow):
         self.right_hand_label = QLabel("Right hand: --")
         self.action_tracking_label = QLabel("Action tracking: inactive")
 
-        self.volume_label = QLabel(f"Volume: -%")
+        self.volume_label = QLabel(f"Volume: --%")
+        self.brightness_label = QLabel(f"Brightness: --%")
 
         # computer actions are enabled only while left index is pointing up
         self.action_tracking = False
@@ -65,6 +67,7 @@ class MainWindow(QMainWindow):
         sidebar_layout.addWidget(self.right_hand_label)
         sidebar_layout.addWidget(self.action_tracking_label)
         sidebar_layout.addWidget(self.volume_label)
+        sidebar_layout.addWidget(self.brightness_label)
         sidebar_layout.addStretch()
 
         main_layout.addWidget(sidebar)
@@ -77,16 +80,18 @@ class MainWindow(QMainWindow):
 
         self.landmarker = create_hand_landmarker()
 
-        self.system_volume = WindowsSystemController()
+        self.system_control = WindowsSystemController()
 
         # gesture controllers
-        self.volume_gesture = VolumeGestureController(self.system_volume)
+        self.volume_gesture = VolumeGestureController(self.system_control)
+        self.brightness_gesture = BrightnessGestureController(self.system_control)
 
         self.frame_timer = QTimer(self)
         self.frame_timer.timeout.connect(self.update_frame)
         self.frame_timer.start(16)
 
-        self.volume_label.setText(f"Volume: {self.system_volume.get_volume()}%") # so it doesn't display 0 on opening
+        self.volume_label.setText(f"Volume: {self.system_control.get_volume()}%") # so it doesn't display 0 on opening
+        self.brightness_label.setText(f"Brightness: {self.system_control.get_brightness()}%")
 
     def update_frame(self) -> None:
 
@@ -149,9 +154,24 @@ class MainWindow(QMainWindow):
             ),
         )
 
+        brightness = self.brightness_gesture.update(
+            action_tracking=self.action_tracking,
+            right_gesture=(
+                right_hand["gesture"] if right_hand else None
+            ),
+            right_landmarks=(
+                right_hand["landmarks"] if right_hand else None
+            ),
+        )
+
         if volume is not None:
-            self.system_volume.set_volume(volume)
-            self.volume_label.setText(f"Volume: {self.system_volume.get_volume()}%")
+            self.system_control.set_volume(volume)
+            self.volume_label.setText(f"Volume: {self.system_control.get_volume()}%")
+
+        if brightness is not None:
+            self.system_control.set_brightness(brightness)
+            self.brightness_label.setText(f"Brightness: {self.system_control.get_brightness()}%")
+
 
         if self.action_tracking:
             self.action_tracking_label.setText("Action tracking: active")
