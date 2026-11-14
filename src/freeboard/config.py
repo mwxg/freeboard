@@ -16,3 +16,4 @@ IM_POINT_DISTANCE_RATIO = 0.25
 
 # controls
 VOLUME_SLIDER_PADDING = 0.10 # how far the invisible volume slider is from the top/bottom of the screen
+VOLUME_SLIDER_HEIGHT = 0.5 # 0 to 1 -> relative to screen height

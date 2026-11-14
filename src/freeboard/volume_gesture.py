@@ -4,27 +4,31 @@ from .gestures import(
     INDEX_TIP,
     THUMB_TIP
 )
-from .config import VOLUME_SLIDER_PADDING
+from .config import VOLUME_SLIDER_HEIGHT
+from .system_volume import WindowsVolumeController
 
 from collections.abc import Sequence
 from collections import deque
 
 class VolumeGestureController:
 
-    def __init__(self, top_y: float=VOLUME_SLIDER_PADDING):
-        self.top_y = top_y
+    def __init__(self, system_volume: WindowsVolumeController):
         self.drag_active = False
         self.start_y: float | None = None
         self.current_volume: int | None = None
+        self.start_volume: float | None = None
 
         # 45/60 of the last 60 frames must be a pinch to be "stable"
         self.pinch_history: deque[bool] = deque(maxlen=60)
+
+        self.system_volume = system_volume
 
     def reset(self) -> None:
         self.drag_active = False
         self.start_y = None
         self.current_volume = None
         self.pinch_history.clear()
+        self.start_volume = None
 
     def update(
         self,
@@ -63,17 +67,19 @@ class VolumeGestureController:
         ) / 2
 
         if not self.drag_active:
-            if pinch_y <= self.top_y:
-                return None
-
             self.drag_active = True
             self.start_y = pinch_y
             self.pinch_history.extend([True] * 60)
+            self.start_volume = self.system_volume.get_volume() / 100
 
         assert self.start_y is not None
 
-        slider_height = self.start_y - self.top_y
-        progress = (self.start_y - pinch_y) / slider_height
+        starting_slider_pos = self.start_volume # start at where current volume is
+        slider_bottom = self.start_y + (starting_slider_pos * VOLUME_SLIDER_HEIGHT)
+        # slider_top = self.start_y - (starting_slider_pos * VOLUME_SLIDER_HEIGHT)
+
+        # where on the slider am I?
+        progress = (slider_bottom - pinch_y) / VOLUME_SLIDER_HEIGHT
         progress = max(0.0, min(1.0, progress))
 
         volume = round(progress * 100)

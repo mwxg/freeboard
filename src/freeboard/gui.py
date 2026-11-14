@@ -77,14 +77,15 @@ class MainWindow(QMainWindow):
 
         self.landmarker = create_hand_landmarker()
 
+        self.system_volume = WindowsVolumeController()
+
         # gesture controllers
-        self.volume_gesture = VolumeGestureController()
+        self.volume_gesture = VolumeGestureController(self.system_volume)
 
         self.frame_timer = QTimer(self)
         self.frame_timer.timeout.connect(self.update_frame)
         self.frame_timer.start(16)
 
-        self.system_volume = WindowsVolumeController()
         self.volume_label.setText(f"Volume: {self.system_volume.get_volume()}%") # so it doesn't display 0 on opening
 
     def update_frame(self) -> None:
