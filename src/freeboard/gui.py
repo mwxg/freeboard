@@ -60,6 +60,8 @@ class MainWindow(QMainWindow):
         self.volume_label = QLabel(f"Volume: --%")
         self.brightness_label = QLabel(f"Brightness: --%")
 
+        self.last_action_label = QLabel(f"Last action: None")
+
         # computer actions are enabled only while left index is pointing up
         self.action_tracking = False
 
@@ -70,6 +72,7 @@ class MainWindow(QMainWindow):
         sidebar_layout.addWidget(self.action_tracking_label)
         sidebar_layout.addWidget(self.volume_label)
         sidebar_layout.addWidget(self.brightness_label)
+        sidebar_layout.addWidget(self.last_action_label)
         sidebar_layout.addStretch()
 
         main_layout.addWidget(sidebar)
@@ -170,10 +173,12 @@ class MainWindow(QMainWindow):
         if volume is not None:
             self.system_control.set_volume(volume)
             self.volume_label.setText(f"Volume: {self.system_control.get_volume()}%")
+            self.last_action_label.setText(f"Last action: Change volume")
 
         if brightness is not None:
             self.system_control.set_brightness(brightness)
             self.brightness_label.setText(f"Brightness: {self.system_control.get_brightness()}%")
+            self.last_action_label.setText(f"Last action: Change brightness")
 
         swipe = self.swipe_gesture.update(
             action_tracking=self.action_tracking,
@@ -183,9 +188,10 @@ class MainWindow(QMainWindow):
 
         if swipe == "right":
             self.system_control.next_track()
+            self.last_action_label.setText(f"Last action: Next track")
         elif swipe == "left":
             self.system_control.previous_track()
-
+            self.last_action_label.setText(f"Last action: Previous track")
 
         if self.action_tracking:
             self.action_tracking_label.setText("Action tracking: active")
