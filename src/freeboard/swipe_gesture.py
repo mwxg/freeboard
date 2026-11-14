@@ -60,7 +60,7 @@ class SwipeGestureController:
             return None
 
         if not self.history and self.armed:
-            self.index_point_history.extend([True])
+            self.index_point_history.extend([True] * STABLE_RATIO[1])
 
         tip = right_landmarks[INDEX_TIP]
         self.history.append((now, tip.x, tip.y))
