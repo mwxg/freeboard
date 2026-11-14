@@ -82,4 +82,5 @@ class SwipeGestureController:
         self.last_swipe_time = now
         self.history.clear()
 
-        return "right" if dx > 0 else "left"
+        # flip it because it is reversed
+        return "left" if dx > 0 else "right"
