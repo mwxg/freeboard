@@ -39,6 +39,7 @@ Run the application from the repository root so it can find the model.
 | Right-hand IM point | Starts brightness tracking while action tracking is active |
 | Open palm | Recognition only |
 | Peace sign | Recognition only |
+
 <small>"IM point" means pointing with your index and middle finger, like a closed peace sign.</small>
 
 Point upward with your left index finger and hold it there to activate action tracking. The app will not perform any actions if you do not do this.
