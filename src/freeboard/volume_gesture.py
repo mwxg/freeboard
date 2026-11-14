@@ -4,7 +4,7 @@ from .gestures import(
     INDEX_TIP,
     THUMB_TIP
 )
-from .config import VOLUME_SLIDER_HEIGHT
+from .config import VOLUME_SLIDER_HEIGHT, STABLE_RATIO
 
 from collections.abc import Sequence
 from collections import deque
@@ -17,8 +17,7 @@ class VolumeGestureController:
         self.current_volume: int | None = None
         self.start_volume: float | None = None
 
-        # 45/60 of the last 60 frames must be a pinch to be "stable"
-        self.pinch_history: deque[bool] = deque(maxlen=60)
+        self.pinch_history: deque[bool] = deque(maxlen=STABLE_RATIO[1])
 
         self.system_volume = system_volume
 
@@ -46,7 +45,7 @@ class VolumeGestureController:
         if self.drag_active:
             self.pinch_history.append(pinch_detected)
 
-            if sum(self.pinch_history) < 45:
+            if sum(self.pinch_history) < STABLE_RATIO[0]:
                 self.reset()
                 return None
 
@@ -68,7 +67,7 @@ class VolumeGestureController:
         if not self.drag_active:
             self.drag_active = True
             self.start_y = pinch_y
-            self.pinch_history.extend([True] * 60)
+            self.pinch_history.extend([True] * STABLE_RATIO[1])
             self.start_volume = self.system_volume.get_volume() / 100
 
         assert self.start_y is not None
