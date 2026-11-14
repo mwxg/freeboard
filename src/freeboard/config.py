@@ -19,3 +19,10 @@ SLIDER_HEIGHT = 0.5 # 0 to 1 -> relative to screen height
 VOLUME_SLIDER_PADDING = 0.10 # how far the invisible volume slider is from the top/bottom of the screen
 
 STABLE_RATIO = (45, 60) # [0] of the last [1] frames must be stable for gesture to continue
+
+# swiping
+SWIPE_DISTANCE = 0.18 # user must swipe at least this far (% of frame width)
+SWIPE_MIN_SPEED = 0.65 # frame widths per second
+SWIPE_MAX_VERTICAL_DRIFT = 0.10
+SWIPE_WINDOW_SECONDS = 0.35 # only positions from the last _ seconds contribute to swipe detection
+SWIPE_COOLDOWN_SECONDS = 0.60 # how often you can swipe
