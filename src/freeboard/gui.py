@@ -5,9 +5,7 @@ from PySide6.QtGui import QCloseEvent, QImage, QPixmap
 from PySide6.QtWidgets import (
     QLabel, QMainWindow,
     QHBoxLayout,
-    QVBoxLayout,
     QWidget,
-    QFrame,
 )
 
 from .config import AppConfig, MODEL_PATH, WINDOW_NAME
@@ -17,6 +15,7 @@ from .gestures import Gesture, classify_gesture
 from .volume_gesture import VolumeGestureController
 from .brightness_gesture import BrightnessGestureController
 from .swipe_gesture import SwipeGestureController
+from .status_sidebar import StatusSidebar
 
 from .system_controls import WindowsSystemController
 
@@ -48,36 +47,12 @@ class MainWindow(QMainWindow):
 
         main_layout.addWidget(self.video_label, stretch=1)
 
-        sidebar = QFrame()
-        sidebar.setMinimumWidth(220)
-
-        sidebar_layout = QVBoxLayout(sidebar)
-
-        title_label = QLabel("Gesture Status")
-        self.detection_label = QLabel("No hand detected")
-        self.left_hand_label = QLabel("Left hand: --")
-        self.right_hand_label = QLabel("Right hand: --")
-        self.action_tracking_label = QLabel("Action tracking: inactive")
-
-        self.volume_label = QLabel(f"Volume: --%")
-        self.brightness_label = QLabel(f"Brightness: --%")
-
-        self.last_action_label = QLabel(f"Last action: None")
+        self.status_sidebar = StatusSidebar()
 
         # computer actions are enabled only while left index is pointing up
         self.action_tracking = False
 
-        sidebar_layout.addWidget(title_label)
-        sidebar_layout.addWidget(self.detection_label)
-        sidebar_layout.addWidget(self.left_hand_label)
-        sidebar_layout.addWidget(self.right_hand_label)
-        sidebar_layout.addWidget(self.action_tracking_label)
-        sidebar_layout.addWidget(self.volume_label)
-        sidebar_layout.addWidget(self.brightness_label)
-        sidebar_layout.addWidget(self.last_action_label)
-        sidebar_layout.addStretch()
-
-        main_layout.addWidget(sidebar)
+        main_layout.addWidget(self.status_sidebar)
         self.setCentralWidget(central_widget)
 
         self.camera = cv2.VideoCapture(self.config.camera_index)
@@ -98,17 +73,14 @@ class MainWindow(QMainWindow):
         self.frame_timer.timeout.connect(self.update_frame)
         self.frame_timer.start(16)
 
-        self.volume_label.setText(f"Volume: {self.system_control.get_volume()}%") # so it doesn't display 0 on opening
-        self.brightness_label.setText(f"Brightness: {self.system_control.get_brightness()}%")
+        self.status_sidebar.set_volume(self.system_control.get_volume())
+        self.status_sidebar.set_brightness(self.system_control.get_brightness())
 
     def update_frame(self) -> None:
 
         # frames start with neutral labels
-        self.detection_label.setText("No hand detected")
-        self.left_hand_label.setText("Left hand (0.00): --")
-        self.right_hand_label.setText("Right hand (0.00): --")
+        self.status_sidebar.reset_frame_status()
         self.action_tracking = False
-        self.action_tracking_label.setText("Action tracking: inactive")
 
         success, frame = self.camera.read()
 
@@ -137,20 +109,23 @@ class MainWindow(QMainWindow):
                     "confidence": category.score,
                 }
 
-                self.detection_label.setText("Hand detected")
+                self.status_sidebar.show_hand(
+                    hand_name,
+                    category.score,
+                    hands[hand_name]["gesture"],
+                )
                 draw_hand(frame, hand_landmarks)
 
             left_hand = hands.get("left")
             right_hand = hands.get("right")
 
             if left_hand is not None:
-                self.left_hand_label.setText(f"Left hand ({left_hand["confidence"]:.2f}): {left_hand["gesture"].value}")
                 self.action_tracking = (
                     left_hand["gesture"] is Gesture.INDEX_POINT
                     and left_hand["confidence"] >= 0.8
                 )
-            if right_hand is not None:
-                self.right_hand_label.setText(f"Right hand ({right_hand["confidence"]:.2f}): {right_hand["gesture"].value}")
+
+        self.status_sidebar.set_action_tracking(self.action_tracking)
 
         volume = self.volume_gesture.update(
             action_tracking=self.action_tracking,
@@ -174,13 +149,13 @@ class MainWindow(QMainWindow):
 
         if volume is not None:
             self.system_control.set_volume(volume)
-            self.volume_label.setText(f"Volume: {self.system_control.get_volume()}%")
-            self.last_action_label.setText(f"Last action: Change volume")
+            self.status_sidebar.set_volume(self.system_control.get_volume())
+            self.status_sidebar.set_last_action("Change volume")
 
         if brightness is not None:
             self.system_control.set_brightness(brightness)
-            self.brightness_label.setText(f"Brightness: {self.system_control.get_brightness()}%")
-            self.last_action_label.setText(f"Last action: Change brightness")
+            self.status_sidebar.set_brightness(self.system_control.get_brightness())
+            self.status_sidebar.set_last_action("Change brightness")
 
         swipe = self.swipe_gesture.update(
             action_tracking=self.action_tracking,
@@ -190,13 +165,10 @@ class MainWindow(QMainWindow):
 
         if swipe == "right":
             self.system_control.next_track()
-            self.last_action_label.setText(f"Last action: Next track")
+            self.status_sidebar.set_last_action("Next track")
         elif swipe == "left":
             self.system_control.previous_track()
-            self.last_action_label.setText(f"Last action: Previous track")
-
-        if self.action_tracking:
-            self.action_tracking_label.setText("Action tracking: active")
+            self.status_sidebar.set_last_action("Previous track")
 
         # mirror the image so movement feels natural
         frame = cv2.flip(frame, 1)
