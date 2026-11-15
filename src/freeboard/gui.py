@@ -5,6 +5,7 @@ from PySide6.QtGui import QCloseEvent, QImage, QPixmap
 from PySide6.QtWidgets import (
     QLabel, QMainWindow,
     QHBoxLayout,
+    QMessageBox,
     QWidget,
 )
 
@@ -65,6 +66,8 @@ class MainWindow(QMainWindow):
 
         if not self.camera.isOpened():
             raise RuntimeError("Could not open webcam")
+
+        self.camera_index = self.config.camera_index
 
         self.landmarker = create_hand_landmarker(self.config)
 
@@ -221,7 +224,8 @@ class MainWindow(QMainWindow):
         self.landmarker = create_hand_landmarker(self.config)
 
         if self.camera_index != self.config.camera_index:
-            new_camera = cv2.VideoCapture(self.config.camera_index)
+            requested_camera_index = self.config.camera_index
+            new_camera = cv2.VideoCapture(requested_camera_index)
 
             if new_camera.isOpened():
                 self.camera.release()
@@ -229,7 +233,15 @@ class MainWindow(QMainWindow):
                 self.camera_index = self.config.camera_index
             else:
                 new_camera.release()
-                # Show an error and restore the previous config value.
+                self.config.camera_index = self.camera_index
+                self.settings_sidebar.load_config()
+                QMessageBox.warning(
+                    self,
+                    "Camera unavailable",
+                    "Could not open camera "
+                    f"{requested_camera_index}. The previous camera "
+                    "will continue to be used.",
+                )
 
     def closeEvent(self, event: QCloseEvent) -> None:
         self.frame_timer.stop()
