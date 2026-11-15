@@ -1,7 +1,7 @@
 from pathlib import Path
 from dataclasses import dataclass
 
-MODEL_PATH = Path("models/hand_landmarker.task")
+MODEL_PATH = Path("src/freeboard/resources/hand_landmarker.task")
 WINDOW_NAME = "Freeboard Camera"
 NUM_HANDS = 2
 

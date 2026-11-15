@@ -55,6 +55,7 @@ data/processed/
 *.h5
 *.tflite
 *.task
+!src/freeboard/resources/hand_landmarker.task
 
 # Video recordings and captures
 recordings/
