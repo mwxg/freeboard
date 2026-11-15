@@ -15,13 +15,11 @@ Freeboard is a desktop prototype that uses a webcam to recognize hand gestures i
 - Python 3.14 or newer
 - [uv](https://docs.astral.sh/uv/getting-started/installation/)
 - A webcam and permission to access it
-- MediaPipe's `hand_landmarker.task` model
 
 ## Setup
 
 1. Clone the repository and open its root directory.
-2. Download `hand_landmarker.task` and save it as `models/hand_landmarker.task`.
-3. Install the dependencies and run the application:
+2. Install the dependencies and run the application:
 
 ```powershell
 uv sync
