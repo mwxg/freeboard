@@ -1,4 +1,4 @@
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Signal, QTimer
 from PySide6.QtWidgets import (
     QDoubleSpinBox,
     QFormLayout,
@@ -75,6 +75,7 @@ class SettingsSidebar(QFrame):
         layout.addStretch()
 
         self.load_config()
+        QTimer.singleShot(0, apply_button.setFocus)
 
     @staticmethod
     def _decimal_input(
