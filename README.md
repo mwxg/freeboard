@@ -26,7 +26,8 @@ uv sync
 uv run freeboard
 ```
 
-Run the application from the repository root so it can find the model.
+The bundled hand-tracking model is resolved relative to the installed
+`freeboard` package, so the application can be launched from any directory.
 
 ## Gestures
 
