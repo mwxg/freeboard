@@ -66,9 +66,12 @@ class SettingsSidebar(QFrame):
 
         apply_button = QPushButton("Apply")
         apply_button.clicked.connect(self.apply)
+        reset_button = QPushButton("Reset to defaults")
+        reset_button.clicked.connect(self.reset_to_defaults)
 
         layout.addLayout(form)
         layout.addWidget(apply_button)
+        layout.addWidget(reset_button)
         layout.addStretch()
 
         self.load_config()
@@ -85,22 +88,27 @@ class SettingsSidebar(QFrame):
         control.setSingleStep(step)
         return control
 
-    def load_config(self) -> None:
-        self.camera_index.setValue(self.config.camera_index)
-        self.detection_confidence.setValue(self.config.min_hand_detection_confidence)
-        self.presence_confidence.setValue(self.config.min_hand_presence_confidence)
-        self.tracking_confidence.setValue(self.config.min_tracking_confidence)
-        self.finger_angle.setValue(self.config.finger_straight_angle)
-        self.pinch_ratio.setValue(self.config.pinch_distance_ratio)
-        self.im_point_ratio.setValue(self.config.im_point_distance_ratio)
-        self.slider_height.setValue(self.config.slider_height)
-        self.stable_required_frames.setValue(self.config.stable_required_frames)
-        self.stable_window_frames.setValue(self.config.stable_window_frames)
-        self.swipe_distance.setValue(self.config.swipe_distance)
-        self.swipe_min_speed.setValue(self.config.swipe_min_speed)
-        self.swipe_max_vertical_drift.setValue(self.config.swipe_max_vertical_drift)
-        self.swipe_window_seconds.setValue(self.config.swipe_window_seconds)
-        self.swipe_cooldown_seconds.setValue(self.config.swipe_cooldown_seconds)
+    def load_config(self, config: AppConfig | None = None) -> None:
+        config = config or self.config
+
+        self.camera_index.setValue(config.camera_index)
+        self.detection_confidence.setValue(config.min_hand_detection_confidence)
+        self.presence_confidence.setValue(config.min_hand_presence_confidence)
+        self.tracking_confidence.setValue(config.min_tracking_confidence)
+        self.finger_angle.setValue(config.finger_straight_angle)
+        self.pinch_ratio.setValue(config.pinch_distance_ratio)
+        self.im_point_ratio.setValue(config.im_point_distance_ratio)
+        self.slider_height.setValue(config.slider_height)
+        self.stable_required_frames.setValue(config.stable_required_frames)
+        self.stable_window_frames.setValue(config.stable_window_frames)
+        self.swipe_distance.setValue(config.swipe_distance)
+        self.swipe_min_speed.setValue(config.swipe_min_speed)
+        self.swipe_max_vertical_drift.setValue(config.swipe_max_vertical_drift)
+        self.swipe_window_seconds.setValue(config.swipe_window_seconds)
+        self.swipe_cooldown_seconds.setValue(config.swipe_cooldown_seconds)
+
+    def reset_to_defaults(self) -> None:
+        self.load_config(AppConfig())
 
     def apply(self) -> None:
         self.config.camera_index = self.camera_index.value()
