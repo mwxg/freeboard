@@ -16,6 +16,7 @@ from .volume_gesture import VolumeGestureController
 from .brightness_gesture import BrightnessGestureController
 from .swipe_gesture import SwipeGestureController
 from .status_sidebar import StatusSidebar
+from .settings_sidebar import SettingsSidebar
 
 from .system_controls import WindowsSystemController
 
@@ -45,15 +46,20 @@ class MainWindow(QMainWindow):
         central_widget = QWidget()
         main_layout = QHBoxLayout(central_widget)
 
-        main_layout.addWidget(self.video_label, stretch=1)
-
+        self.settings_sidebar = SettingsSidebar(self.config)
         self.status_sidebar = StatusSidebar()
+
+        main_layout.addWidget(self.settings_sidebar)
+        main_layout.addWidget(self.video_label, stretch=1)
+        main_layout.addWidget(self.status_sidebar)
+        self.setCentralWidget(central_widget)
+
+        self.settings_sidebar.settings_changed.connect(
+            self.apply_settings
+        )
 
         # computer actions are enabled only while left index is pointing up
         self.action_tracking = False
-
-        main_layout.addWidget(self.status_sidebar)
-        self.setCentralWidget(central_widget)
 
         self.camera = cv2.VideoCapture(self.config.camera_index)
 
@@ -201,6 +207,29 @@ class MainWindow(QMainWindow):
         )
 
         self.video_label.setPixmap(scaled_pixmap)
+
+    def apply_settings(self) -> None:
+        self.volume_gesture = VolumeGestureController(
+            self.system_control, self.config
+        )
+        self.brightness_gesture = BrightnessGestureController(
+            self.system_control, self.config
+        )
+        self.swipe_gesture = SwipeGestureController(self.config)
+
+        self.landmarker.close()
+        self.landmarker = create_hand_landmarker(self.config)
+
+        if self.camera_index != self.config.camera_index:
+            new_camera = cv2.VideoCapture(self.config.camera_index)
+
+            if new_camera.isOpened():
+                self.camera.release()
+                self.camera = new_camera
+                self.camera_index = self.config.camera_index
+            else:
+                new_camera.release()
+                # Show an error and restore the previous config value.
 
     def closeEvent(self, event: QCloseEvent) -> None:
         self.frame_timer.stop()
