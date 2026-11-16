@@ -16,3 +16,6 @@ freeboard = "freeboard.__main__:main"
 [build-system]
 requires = ["uv_build"]
 build-backend = "uv_build"
+
+[tool.pyside6.deploy]
+icon = "assets/freeboard.ico"
