@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 PACKAGE_DIR = Path(__file__).resolve().parent
 MODEL_PATH = PACKAGE_DIR / "resources" / "hand_landmarker.task"
-WINDOW_NAME = "Freeboard Camera"
+WINDOW_NAME = "Freeboard"
 NUM_HANDS = 2
 
 @dataclass
