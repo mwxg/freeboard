@@ -230,8 +230,12 @@ class MainWindow(QMainWindow):
         )
         self.swipe_gesture = SwipeGestureController(self.config)
 
-        self.landmarker.close()
-        self.landmarker = create_hand_landmarker(self.config)
+        # create new landmarker before closing the old one
+        new_landmarker = create_hand_landmarker(self.config)
+
+        old_landmarker = self.landmarker
+        self.landmarker = new_landmarker
+        old_landmarker.close()
 
         if self.camera_index != self.config.camera_index:
             requested_camera_index = self.config.camera_index
