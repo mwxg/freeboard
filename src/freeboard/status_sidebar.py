@@ -16,8 +16,8 @@ class StatusSidebar(QFrame):
         self._left_hand_label = QLabel("Left hand: --")
         self._right_hand_label = QLabel("Right hand: --")
         self._action_tracking_label = QLabel("Action tracking: inactive")
-        self._volume_label = QLabel("Volume: --%")
-        self._brightness_label = QLabel("Brightness: --%")
+        self._volume_label = QLabel("Volume: Unavailable")
+        self._brightness_label = QLabel("Brightness: Unavailable")
         self._last_action_label = QLabel("Last action: None")
 
         layout.addWidget(title_label)

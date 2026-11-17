@@ -140,25 +140,31 @@ class MainWindow(QMainWindow):
 
         self.status_sidebar.set_action_tracking(self.action_tracking)
 
-        volume = self.volume_gesture.update(
-            action_tracking=self.action_tracking,
-            right_gesture=(
-                right_hand["gesture"] if right_hand else None
-            ),
-            right_landmarks=(
-                right_hand["landmarks"] if right_hand else None
-            ),
-        )
-
-        brightness = self.brightness_gesture.update(
-            action_tracking=self.action_tracking,
-            right_gesture=(
-                right_hand["gesture"] if right_hand else None
-            ),
-            right_landmarks=(
-                right_hand["landmarks"] if right_hand else None
-            ),
-        )
+        if self.system_control.volume_available:
+            volume = self.volume_gesture.update(
+                action_tracking=self.action_tracking,
+                right_gesture=(
+                    right_hand["gesture"] if right_hand else None
+                ),
+                right_landmarks=(
+                    right_hand["landmarks"] if right_hand else None
+                ),
+            )
+        else:
+            volume = None
+        
+        if self.system_control.brightness_available:
+            brightness = self.brightness_gesture.update(
+                action_tracking=self.action_tracking,
+                right_gesture=(
+                    right_hand["gesture"] if right_hand else None
+                ),
+                right_landmarks=(
+                    right_hand["landmarks"] if right_hand else None
+                ),
+            )
+        else:
+            brightness = None
 
         if volume is not None:
             self.system_control.set_volume(volume)
