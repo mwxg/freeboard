@@ -65,7 +65,11 @@ class MainWindow(QMainWindow):
         self.camera = cv2.VideoCapture(self.config.camera_index)
 
         if not self.camera.isOpened():
-            raise RuntimeError("Could not open webcam")
+            raise RuntimeError(
+                f"Freeboard could not open camera {self.config.camera_index}.\n\n"
+                "Make sure the camera is connected, camera access is enabled "
+                "in Windows Settings, and another application is not using it."
+            )
 
         self.camera_index = self.config.camera_index
 
