@@ -65,3 +65,9 @@ class StatusSidebar(QFrame):
 
     def set_last_action(self, action: str) -> None:
         self._last_action_label.setText(f"Last action: {action}")
+
+    def set_volume_unavailable(self) -> None:
+        self._volume_label.setText("Volume: Unavailable")
+
+    def set_brightness_unavailable(self) -> None:
+        self._brightness_label.setText("Brightness: Unavailable")

@@ -85,24 +85,42 @@ class MainWindow(QMainWindow):
 
         self.system_control = WindowsSystemController()
 
+        self.volume_available = self.system_control.volume_available
+        self.brightness_available = self.system_control.brightness_available
+        self.media_controls_available = True
+
         # gesture controllers
         self.volume_gesture = VolumeGestureController(self.system_control, self.config)
         self.brightness_gesture = BrightnessGestureController(self.system_control, self.config)
         self.swipe_gesture = SwipeGestureController(self.config)
 
+        if self.volume_available:
+            try:
+                self.status_sidebar.set_volume(self.system_control.get_volume())
+            except Exception:
+                self.disable_volume_control()
+        else:
+            self.status_sidebar.set_volume_unavailable()
+
+        if self.brightness_available:
+            try:
+                self.status_sidebar.set_brightness(
+                    self.system_control.get_brightness()
+                )
+            except Exception:
+                self.disable_brightness_control()
+        else:
+            self.status_sidebar.set_brightness_unavailable()
+
         self.frame_timer = QTimer(self)
         self.frame_timer.timeout.connect(self.update_frame)
         self.frame_timer.start(16)
-
-        self.status_sidebar.set_volume(self.system_control.get_volume())
-        self.status_sidebar.set_brightness(self.system_control.get_brightness())
 
     def update_frame(self) -> None:
 
         # frames start with neutral labels
         self.status_sidebar.reset_frame_status()
         self.action_tracking = False
-
 
         try:
             success, frame = self.camera.read()
@@ -125,11 +143,12 @@ class MainWindow(QMainWindow):
                     "another application.",
                 )
             return
-        
+
         self.camera_failure_count = 0
 
         try:
             result = detect_hands(self.landmarker, frame)
+            left_hand, right_hand = self.process_hands(result, frame)
         except Exception as error:
             self.stop_frame_processing(
                 "Hand detection stopped",
@@ -138,6 +157,22 @@ class MainWindow(QMainWindow):
             )
             return
 
+        self.update_volume(right_hand)
+        self.update_brightness(right_hand)
+        self.update_media_controls(right_hand)
+
+        try:
+            # mirror the image so movement feels natural
+            frame = cv2.flip(frame, 1)
+            self.display_frame(frame)
+        except Exception as error:
+            self.stop_frame_processing(
+                "Video display stopped",
+                "Freeboard encountered an error while displaying "
+                f"the camera image:\n\n{error}",
+            )
+
+    def process_hands(self, result, frame):
         hands = {}
         left_hand = None
         right_hand = None
@@ -174,8 +209,13 @@ class MainWindow(QMainWindow):
                 )
 
         self.status_sidebar.set_action_tracking(self.action_tracking)
+        return left_hand, right_hand
 
-        if self.system_control.volume_available:
+    def update_volume(self, right_hand) -> None:
+        if not self.volume_available:
+            return
+
+        try:
             volume = self.volume_gesture.update(
                 action_tracking=self.action_tracking,
                 right_gesture=(
@@ -185,10 +225,20 @@ class MainWindow(QMainWindow):
                     right_hand["landmarks"] if right_hand else None
                 ),
             )
-        else:
-            volume = None
-        
-        if self.system_control.brightness_available:
+
+            if volume is not None:
+                self.system_control.set_volume(volume)
+                current_volume = self.system_control.get_volume()
+                self.status_sidebar.set_volume(current_volume)
+                self.status_sidebar.set_last_action("Change volume")
+        except Exception:
+            self.disable_volume_control()
+
+    def update_brightness(self, right_hand) -> None:
+        if not self.brightness_available:
+            return
+
+        try:
             brightness = self.brightness_gesture.update(
                 action_tracking=self.action_tracking,
                 right_gesture=(
@@ -198,35 +248,50 @@ class MainWindow(QMainWindow):
                     right_hand["landmarks"] if right_hand else None
                 ),
             )
-        else:
-            brightness = None
 
-        if volume is not None:
-            self.system_control.set_volume(volume)
-            self.status_sidebar.set_volume(self.system_control.get_volume())
-            self.status_sidebar.set_last_action("Change volume")
+            if brightness is not None:
+                self.system_control.set_brightness(brightness)
+                current_brightness = self.system_control.get_brightness()
+                self.status_sidebar.set_brightness(current_brightness)
+                self.status_sidebar.set_last_action("Change brightness")
+        except Exception:
+            self.disable_brightness_control()
 
-        if brightness is not None:
-            self.system_control.set_brightness(brightness)
-            self.status_sidebar.set_brightness(self.system_control.get_brightness())
-            self.status_sidebar.set_last_action("Change brightness")
+    def update_media_controls(self, right_hand) -> None:
+        if not self.media_controls_available:
+            return
 
-        swipe = self.swipe_gesture.update(
-            action_tracking=self.action_tracking,
-            right_gesture=right_hand["gesture"] if right_hand else None,
-            right_landmarks=right_hand["landmarks"] if right_hand else None,
-        )
+        try:
+            swipe = self.swipe_gesture.update(
+                action_tracking=self.action_tracking,
+                right_gesture=right_hand["gesture"] if right_hand else None,
+                right_landmarks=right_hand["landmarks"] if right_hand else None,
+            )
 
-        if swipe == "right":
-            self.system_control.next_track()
-            self.status_sidebar.set_last_action("Next track")
-        elif swipe == "left":
-            self.system_control.previous_track()
-            self.status_sidebar.set_last_action("Previous track")
+            if swipe == "right":
+                self.system_control.next_track()
+                self.status_sidebar.set_last_action("Next track")
+            elif swipe == "left":
+                self.system_control.previous_track()
+                self.status_sidebar.set_last_action("Previous track")
+        except Exception:
+            self.media_controls_available = False
+            self.swipe_gesture.reset()
+            self.status_sidebar.set_last_action(
+                "Media controls unavailable"
+            )
 
-        # mirror the image so movement feels natural
-        frame = cv2.flip(frame, 1)
-        self.display_frame(frame)
+    def disable_volume_control(self) -> None:
+        self.volume_available = False
+        self.volume_gesture.reset()
+        self.status_sidebar.set_volume_unavailable()
+        self.status_sidebar.set_last_action("Volume control unavailable")
+
+    def disable_brightness_control(self) -> None:
+        self.brightness_available = False
+        self.brightness_gesture.reset()
+        self.status_sidebar.set_brightness_unavailable()
+        self.status_sidebar.set_last_action("Brightness control unavailable")
 
     def display_frame(self, frame) -> None:
         # OpenCV uses BGR but Qt expects RGB
