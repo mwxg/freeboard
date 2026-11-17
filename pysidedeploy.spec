@@ -7,7 +7,7 @@ title = Freeboard
 project_dir = .
 
 # source file entry point path. default = main.py
-input_file = main.py
+input_file = freeboard_app.py
 
 # directory where the executable output is generated
 exec_directory = dist
