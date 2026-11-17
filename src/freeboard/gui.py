@@ -26,6 +26,10 @@ class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
 
+        self.camera = None
+        self.landmarker = None
+        self.frame_timer = None
+
         if not MODEL_PATH.exists():
             raise FileNotFoundError(
                 f"Missing MediaPipe model: {MODEL_PATH}"
@@ -258,8 +262,13 @@ class MainWindow(QMainWindow):
                 )
 
     def closeEvent(self, event: QCloseEvent) -> None:
-        self.frame_timer.stop()
-        self.camera.release()
-        self.landmarker.close()
+        if self.frame_timer is not None:
+            self.frame_timer.stop()
+
+        if self.camera is not None:
+            self.camera.release()
+
+        if self.landmarker is not None:
+            self.landmarker.close()
 
         event.accept()
