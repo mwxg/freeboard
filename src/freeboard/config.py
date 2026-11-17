@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 PACKAGE_DIR = Path(__file__).resolve().parent
 MODEL_PATH = PACKAGE_DIR / "resources" / "hand_landmarker.task"
+ICON_PATH = PACKAGE_DIR / "resources" / "freeboard.ico"
 WINDOW_NAME = "Freeboard"
 NUM_HANDS = 2
 
