@@ -5,6 +5,7 @@
 #define MyAppExeName "freeboard_app.exe"
 
 [Setup]
+LicenseFile=..\LICENSE
 AppId={{BB1EF302-99D8-400A-B452-3B823CACFF42}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
@@ -44,6 +45,7 @@ VersionInfoProductTextVersion={#MyAppVersion}
 Source: "..\dist\Freeboard.dist\*"; \
     DestDir: "{app}"; \
     Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}"; \

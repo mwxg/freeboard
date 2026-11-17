@@ -9,6 +9,8 @@ dependencies = [
     "pyside6>=6.12.0",
     "screen-brightness-control>=0.27.2",
 ]
+license = "MIT"
+license-files = ["LICENSE"]
 
 [project.scripts]
 freeboard = "freeboard.__main__:main"
