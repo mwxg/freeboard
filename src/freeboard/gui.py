@@ -30,6 +30,10 @@ class MainWindow(QMainWindow):
         self.landmarker = None
         self.frame_timer = None
 
+        # up to 30 dropped frames before declaring camera unavailable
+        self.camera_failure_count = 0
+        self.max_camera_failures = 30
+
         if not MODEL_PATH.exists():
             raise FileNotFoundError(
                 f"Missing MediaPipe model: {MODEL_PATH}"
@@ -99,11 +103,30 @@ class MainWindow(QMainWindow):
         self.status_sidebar.reset_frame_status()
         self.action_tracking = False
 
-        success, frame = self.camera.read()
+
+        try:
+            success, frame = self.camera.read()
+        except Exception as error:
+            self.stop_frame_processing(
+                "Camera error",
+                f"Freeboard encountered a camera error:\n\n{error}",
+            )
+            return
 
         if not success:
-            self.video_label.setText("Could not read a frame")
+            self.camera_failure_count += 1
+            self.video_label.setText("Waiting for the camera...")
+
+            if self.camera_failure_count >= self.max_camera_failures:
+                self.stop_frame_processing(
+                    "Camera unavailable",
+                    "Freeboard repeatedly failed to read from the camera. "
+                    "Make sure it is connected and not being used by "
+                    "another application.",
+                )
             return
+        
+        self.camera_failure_count = 0
 
         result = detect_hands(self.landmarker, frame)
 
@@ -260,6 +283,25 @@ class MainWindow(QMainWindow):
                     f"{requested_camera_index}. The previous camera "
                     "will continue to be used.",
                 )
+
+    def stop_frame_processing(
+        self,
+        title: str,
+        message: str,
+    ) -> None:
+        if self.frame_timer.isActive():
+            self.frame_timer.stop()
+
+        self.action_tracking = False
+        self.status_sidebar.set_action_tracking(False)
+        self.video_label.clear()
+        self.video_label.setText(message)
+
+        QMessageBox.critical(
+            self,
+            title,
+            message,
+        )
 
     def closeEvent(self, event: QCloseEvent) -> None:
         if self.frame_timer is not None:
