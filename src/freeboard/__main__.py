@@ -1,5 +1,5 @@
 import sys
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QMessageBox
 from .gui import MainWindow
 from pathlib import Path
 from PySide6.QtGui import QIcon
@@ -14,9 +14,17 @@ def main() -> None:
 
     application.setWindowIcon(QIcon(str(ICON_PATH)))
 
-    window = MainWindow()
-    window.show()
+    try:
+        window = MainWindow()
+    except Exception as error:
+        QMessageBox.critical(
+            None,
+            "Freeboard could not start",
+            str(error),
+        )
+        sys.exit(1)
 
+    window.show()
     sys.exit(application.exec())
 
 
