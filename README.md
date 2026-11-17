@@ -1,3 +1,6 @@
+
+![Freeboard logo](./assets/freeboard.ico)
+
 # Freeboard
 
 Freeboard is a desktop prototype that uses a webcam to recognize hand gestures in real time. It is built with MediaPipe, OpenCV, and PySide6, with the goal of mapping gestures to actions such as volume, brightness, and media controls.
