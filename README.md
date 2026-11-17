@@ -16,6 +16,30 @@ Freeboard is a desktop prototype that uses a webcam to recognize hand gestures i
 - [uv](https://docs.astral.sh/uv/getting-started/installation/)
 - A webcam and permission to access it
 
+## Install on Windows
+
+The packaged installer is intended for 64-bit Windows 10 or Windows 11 and
+does not require Python or `uv`.
+
+1. Download `Freeboard-Setup-0.1.0.exe` from the
+   [GitHub Releases page](https://github.com/mwxg/freeboard/releases).
+2. Run the installer and optionally create a desktop shortcut.
+3. Launch Freeboard and allow camera access if Windows requests it.
+4. Point upward with your left index finger to activate action tracking, then
+   use one of the right-hand gestures described below.
+
+The current installer is not digitally signed, so Microsoft Defender
+SmartScreen may warn that Windows protected your PC. If you downloaded the
+installer from this repository's Releases page, select **More info**, verify
+that the app is Freeboard, and select **Run anyway** to continue.
+
+Freeboard processes camera frames locally for gesture recognition. It does not
+save recordings or transmit camera images. You can revoke camera access at any
+time in **Windows Settings > Privacy & security > Camera**.
+
+To remove Freeboard, open **Windows Settings > Apps > Installed apps**, find
+Freeboard, and select **Uninstall**.
+
 ## Setup
 
 1. Clone the repository and open its root directory.
