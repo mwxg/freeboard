@@ -10,7 +10,7 @@ dependencies = [
     "screen-brightness-control>=0.27.2",
 ]
 license = "MIT"
-license-files = ["LICENSE"]
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.txt", "LICENSES/**"]
 
 [project.scripts]
 freeboard = "freeboard.__main__:main"
