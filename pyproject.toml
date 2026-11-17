@@ -24,3 +24,10 @@ exec_directory = "dist"
 icon = "assets/freeboard.ico"
 mode = "standalone"
 extra_args = "--windows-console-mode=disable --include-package-data=freeboard"
+
+[dependency-groups]
+dev = [
+    "nuitka==4.1.1",
+    "ordered-set>=4.1.0",
+    "zstandard>=0.25.0",
+]
