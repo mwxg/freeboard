@@ -10,12 +10,6 @@ Freeboard is a desktop prototype that uses a webcam to recognize hand gestures i
 - Uses a left-hand index point to activate action tracking
 - Converts right-hand pinch movement into a volume value from 0 to 100
 
-## Requirements
-
-- Python 3.14 or newer
-- [uv](https://docs.astral.sh/uv/getting-started/installation/)
-- A webcam and permission to access it
-
 ## Install on Windows
 
 The packaged installer is intended for 64-bit Windows 10 or Windows 11 and
@@ -40,7 +34,13 @@ time in **Windows Settings > Privacy & security > Camera**.
 To remove Freeboard, open **Windows Settings > Apps > Installed apps**, find
 Freeboard, and select **Uninstall**.
 
-## Setup
+## Development requirements
+
+- Python 3.14 or newer
+- [uv](https://docs.astral.sh/uv/getting-started/installation/)
+- A webcam and permission to access it
+
+## Run from source
 
 1. Clone the repository and open its root directory.
 2. Install the dependencies and run the application:
