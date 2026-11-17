@@ -128,7 +128,15 @@ class MainWindow(QMainWindow):
         
         self.camera_failure_count = 0
 
-        result = detect_hands(self.landmarker, frame)
+        try:
+            result = detect_hands(self.landmarker, frame)
+        except Exception as error:
+            self.stop_frame_processing(
+                "Hand detection stopped",
+                "Freeboard encountered an error while processing "
+                f"the camera image:\n\n{error}",
+            )
+            return
 
         hands = {}
         left_hand = None
