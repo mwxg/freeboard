@@ -67,3 +67,5 @@ captures/
 *.log
 tmp/
 temp/
+
+release/
