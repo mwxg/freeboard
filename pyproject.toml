@@ -18,4 +18,9 @@ requires = ["uv_build"]
 build-backend = "uv_build"
 
 [tool.pyside6.deploy]
+title = "Freeboard"
+input_file = "freeboard_app.py"
+exec_directory = "dist"
 icon = "assets/freeboard.ico"
+mode = "standalone"
+extra_args = "--windows-console-mode=disable --include-package-data=freeboard"
