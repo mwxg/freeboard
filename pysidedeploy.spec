@@ -7,7 +7,7 @@ title = Freeboard
 project_dir = .
 
 # source file entry point path. default = main.py
-input_file = freeboard_app.py
+input_file = main.py
 
 # directory where the executable output is generated
 exec_directory = dist
@@ -101,7 +101,7 @@ macos.permissions =
 mode = standalone
 
 # specify any extra nuitka arguments
-extra_args = --windows-console-mode=disable --include-package-data=freeboard
+extra_args = --windows-console-mode=disable --include-package-data=freeboard --include-raw-dir=.venv/Lib/site-packages/mediapipe/tasks/c=mediapipe/tasks/c
 
 [buildozer]
 

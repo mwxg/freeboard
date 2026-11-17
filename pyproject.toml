@@ -23,7 +23,7 @@ input_file = "freeboard_app.py"
 exec_directory = "dist"
 icon = "assets/freeboard.ico"
 mode = "standalone"
-extra_args = "--windows-console-mode=disable --include-package-data=freeboard"
+extra_args = "--windows-console-mode=disable --include-package-data=freeboard --include-raw-dir=.venv/Lib/site-packages/mediapipe/tasks/c=mediapipe/tasks/c"
 
 [dependency-groups]
 dev = [
